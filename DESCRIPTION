@@ -1,6 +1,6 @@
 Package: dataclass
 Type: Package
-Title: Easily Create Structured Lists with Input Validation
+Title: Easily Create Structured Lists or Data Frames with Input Validation
 Version: 0.1.2
 Author: Chris Walker
 Maintainer: Chris Walker <walkerjameschris@gmail.com>
