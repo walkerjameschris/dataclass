@@ -6,8 +6,9 @@
 #' with several build in validators, but you can define a custom validator as
 #' an anonymous function or named function to be bundled with your data.
 #'
-#' This function will return a new function with named argument for each of the
-#' elements you define here. If you
+#' This function will return a new function with named arguments for each of the
+#' elements you define here. If you want to use your dataclass on data frames or
+#' tibbles you must pass the dataclass to data_validator() to modify behavior.
 #'
 #' @examples
 #' \dontrun{
@@ -40,6 +41,25 @@
 #'   # Ensures calculation is a column in this data and is data like
 #'   results_df = function(x) "calculation" %in% names(x) && df_like(x)
 #' )
+#' 
+#' # Define a dataclass for creating a tibble! Simply omit length restrictions:
+#' my_df_dataclass <-
+#'  dataclass(
+#'    dte_col = dte_vec(),
+#'    chr_col = chr_vec(),
+#'    # Custom column validator which ensures column is numeric and postitive!
+#'    new_col = function(x) num_vec(x) && all(x > 0)
+#'  ) %>%
+#'  # You MUST convert to a data validator for use with data frames
+#'  data_validator()
+#' 
+#' # Validate a tibble!
+#' tibble(
+#'  dte_col = as.Date("2022-01-01"),
+#'  chr_col = "String!",
+#'  new_col = 100
+#' ) %>%
+#'  my_df_dataclass()
 #' }
 #' @export
 #' @importFrom magrittr `%>%`

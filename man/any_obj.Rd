@@ -24,6 +24,11 @@ lgl_vec(max_l = Inf, min_l = 1)
 
 df_like(max_l = Inf, min_l = 1)
 }
+\arguments{
+\item{max_l}{The maximum length (or row count for data frames) of an object}
+
+\item{min_l}{The minimum length (or row count for data frames) of an object}
+}
 \description{
 These are utility functions which can be used to validate dataclass inputs.
 All of these functions follow the same basic structure. If no arguments are
@@ -35,7 +40,9 @@ date vector of length one is returned (in other words a single date).
 }
 \details{
 This function will return a new function with named argument for each of the
-elements you define here. If you
+elements you define here. If you want to define more customized behavior you
+can create your own validator functions and insert them as arguments during
+dataclass creation.
 }
 \section{Functions}{
 \itemize{
@@ -59,5 +66,5 @@ num_vec()        # A numeric vector of any length
 chr_vec(1)       # A single string
 lgl_vec(5, 10)   # A logical vector between 5 and 10 elements in length
 df_like(Inf, 50) # A data object with at least 50 rows
-any_obj()        # Allows any object type without validation
+any_obj()        # Allows any object without validation (can be dangerous!)
 }

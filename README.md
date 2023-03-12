@@ -1,6 +1,6 @@
 ## dataclass
 
-### Easily Create Structured Lists with Input Validation
+### Easily Create Structured Lists or Data Frames with Input Validation
 
 Easily define templated lists with an associated validator function
 for each element in the list. For example, if you wanted to create a list
@@ -11,7 +11,7 @@ own with an anonymous function. This could be considered a very-minimal
 variant of the S7 standard aimed at standardizing structured data generation
 within an R process.
 
-```
+```r
 # Create a dataclass
 my_dataclass <- dataclass(
   min_date = dte_vec(1), # Ensures min_date is a date vector of length 1
@@ -42,4 +42,23 @@ dataclass(
   # Ensures calculation is a column in this data and is data like
   results_df = function(x) "calculation" %in% names(x) && df_like(x)
 )
+
+# Define a dataclass for creating a tibble! Simply omit length restrictions:
+my_df_dataclass <-
+ dataclass(
+   dte_col = dte_vec(),
+   chr_col = chr_vec(),
+   # Custom column validator which ensures column is numeric and postitive!
+   new_col = function(x) num_vec(x) && all(x > 0)
+ ) %>%
+ # You MUST convert to a data validator for use with data frames
+ data_validator()
+
+# Validate a tibble!
+tibble(
+ dte_col = as.Date("2022-01-01"),
+ chr_col = "String!",
+ new_col = 100
+) %>%
+ my_df_dataclass()
 ```

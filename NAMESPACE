@@ -3,6 +3,7 @@
 export(any_obj)
 export(atm_vec)
 export(chr_vec)
+export(data_validator)
 export(dataclass)
 export(df_like)
 export(dte_vec)
