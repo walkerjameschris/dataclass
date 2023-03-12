@@ -120,3 +120,13 @@ testthat::test_that("Invalid data input:", {
     )
   )
 })
+
+testthat::test_that("Passing data into un-converted dataclass:", {
+  
+  # dataclass not converted
+  testthat::expect_error(
+    dataclass::dataclass(my_col = dataclass::chr_vec())(
+      tibble::tibble(my_col = "")
+    )
+  )
+})

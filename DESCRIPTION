@@ -11,7 +11,8 @@ Description: Easily define templated lists with an associated validator function
     comes bundled with common validators, however, you can easily define your
     own with an anonymous function. This could be considered a very-minimal
     variant of the S7 standard aimed at standardizing structured data generation
-    within an R process.
+    within an R process. It can also be used to validate data frames (or data
+    frame like objects).
 License: MIT
 Encoding: UTF-8
 Imports: purrr, rlang, glue, magrittr, tibble

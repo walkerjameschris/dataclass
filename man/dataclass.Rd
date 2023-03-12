@@ -14,7 +14,8 @@ an anonymous function or named function to be bundled with your data.
 }
 \details{
 This function will return a new function with named argument for each of the
-elements you define here. If you
+elements you define here. If you want to use your dataclass on data frames or
+tibbles you must pass the dataclass to data_validator() to modify behavior.
 }
 \examples{
 \dontrun{
@@ -54,7 +55,7 @@ my_df_dataclass <-
    dte_col = dte_vec(),
    chr_col = chr_vec(),
    # Custom column validator which ensures column is numeric and postitive!
-   new_col = function(x) num_vec() && all(x > 0)
+   new_col = function(x) num_vec(x) && all(x > 0)
  ) \%>\%
  # You MUST convert to a data validator for use with data frames
  data_validator()

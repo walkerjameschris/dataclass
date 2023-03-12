@@ -25,8 +25,9 @@ make_validator <- function(validator, l_fun = length) {
 #'    dte_col = dte_vec(),
 #'    chr_col = chr_vec(),
 #'    # Custom column validator which ensures column is numeric and postitive!
-#'    new_col = function(x) num_vec() && all(x > 0)
+#'    new_col = function(x) num_vec(x) && all(x > 0)
 #'  ) %>%
+#'  # Tells dataclass it will be used on tibbles or data frames
 #'  data_validator()
 #' 
 #' # Validate a tibble!
