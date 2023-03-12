@@ -1,6 +1,3 @@
-
-testthat::context("Create dataclasses:")
-
 test_list_class <- dataclass::dataclass(
   dte_anyl = dataclass::dte_vec(),
   dte_et_1 = dataclass::dte_vec(1),
@@ -57,8 +54,6 @@ test_tibble_out <- tibble::tibble(
 
 test_df_out <- as.data.frame(test_tibble_out)
 test_dt_out <- data.table::as.data.table(test_tibble_out)
-
-testthat::context("Test happy path for validators:")
 
 testthat::test_that("Happy path dataclass() for list", {
   

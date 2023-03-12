@@ -1,6 +1,4 @@
 
-testthat::context("Test invalid dataclass() validation:")
-
 testthat::test_that("Invalid date input:", {
   
   # Date input is not date
