@@ -1,6 +1,4 @@
 
-testthat::context("Test invalid dataclass() creation:")
-
 testthat::test_that("Unnamed validators:", {
   
   # Create dataclass without any named elements
