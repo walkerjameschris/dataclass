@@ -1,6 +1,6 @@
 ## dataclass
 
-### Easily Create Structured Lists with Input Validation
+### Easily Create Structured Lists (or Data Frames) with Input Validation
 
 Easily define templated lists with an associated validator function
 for each element in the list. For example, if you wanted to create a list

@@ -1,7 +1,7 @@
 Package: dataclass
 Type: Package
 Title: Easily Create Structured Lists with Input Validation
-Version: 0.1.1
+Version: 0.1.2
 Author: Chris Walker
 Maintainer: Chris Walker <walkerjameschris@gmail.com>
 Description: Easily define templated lists with an associated validator function
@@ -14,7 +14,7 @@ Description: Easily define templated lists with an associated validator function
     within an R process.
 License: MIT
 Encoding: UTF-8
-Imports: purrr, rlang, glue, magrittr
+Imports: purrr, rlang, glue, magrittr, tibble
 RoxygenNote: 7.2.3
 NeedsCompilation: no
 Packaged: 2023-03-12 15:49:07 UTC; cjwal

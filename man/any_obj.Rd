@@ -35,7 +35,9 @@ date vector of length one is returned (in other words a single date).
 }
 \details{
 This function will return a new function with named argument for each of the
-elements you define here. If you
+elements you define here. If you want to define more customized behavior you
+can create your own validator functions and insert them as arguments during
+dataclass creation.
 }
 \section{Functions}{
 \itemize{
@@ -59,5 +61,5 @@ num_vec()        # A numeric vector of any length
 chr_vec(1)       # A single string
 lgl_vec(5, 10)   # A logical vector between 5 and 10 elements in length
 df_like(Inf, 50) # A data object with at least 50 rows
-any_obj()        # Allows any object type without validation
+any_obj()        # Allows any object without validation (can be dangerous!)
 }

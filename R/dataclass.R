@@ -40,6 +40,13 @@
 #'   # Ensures calculation is a column in this data and is data like
 #'   results_df = function(x) "calculation" %in% names(x) && df_like(x)
 #' )
+#' 
+#' # Define a dataclass for creating a tibble! Simply omit length restrictions:
+#' my_tibble_class <- dataclass(
+#'   num_col = num_vec(),
+#'   lgl_col = lgl_vec(),
+#'   dte_col = dte_col()
+#' )
 #' }
 #' @export
 #' @importFrom magrittr `%>%`
