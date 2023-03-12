@@ -42,11 +42,23 @@
 #' )
 #' 
 #' # Define a dataclass for creating a tibble! Simply omit length restrictions:
-#' my_tibble_class <- dataclass(
-#'   num_col = num_vec(),
-#'   lgl_col = lgl_vec(),
-#'   dte_col = dte_col()
-#' )
+#' my_df_dataclass <-
+#'  dataclass(
+#'    dte_col = dte_vec(),
+#'    chr_col = chr_vec(),
+#'    # Custom column validator which ensures column is numeric and postitive!
+#'    new_col = function(x) num_vec() && all(x > 0)
+#'  ) %>%
+#'  # You MUST convert to a data validator for use with data frames
+#'  data_validator()
+#' 
+#' # Validate a tibble!
+#' tibble(
+#'  dte_col = as.Date("2022-01-01"),
+#'  chr_col = "String!",
+#'  new_col = 100
+#' ) %>%
+#'  my_df_dataclass()
 #' }
 #' @export
 #' @importFrom magrittr `%>%`
