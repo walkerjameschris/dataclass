@@ -6,6 +6,9 @@
 \usage{
 data_validator(x)
 }
+\arguments{
+\item{x}{A dataclass object}
+}
 \description{
 If you intend to use your dataclass to validate data frame like object such
 as tibbles, data frames, or data tables, pass the dataclass into this 

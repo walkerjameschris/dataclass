@@ -24,6 +24,11 @@ lgl_vec(max_l = Inf, min_l = 1)
 
 df_like(max_l = Inf, min_l = 1)
 }
+\arguments{
+\item{max_l}{The maximum length (or row count for data frames) of an object}
+
+\item{min_l}{The minimum length (or row count for data frames) of an object}
+}
 \description{
 These are utility functions which can be used to validate dataclass inputs.
 All of these functions follow the same basic structure. If no arguments are

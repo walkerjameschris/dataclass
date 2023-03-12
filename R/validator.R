@@ -18,6 +18,7 @@ make_validator <- function(validator, l_fun = length) {
 #' as tibbles, data frames, or data tables, pass the dataclass into this 
 #' function to modify behavior.
 #' 
+#' @param x A dataclass object
 #' @examples
 #' \dontrun{
 #' my_df_dataclass <-
@@ -62,6 +63,8 @@ data_validator <- function(x) {
 #' can create your own validator functions and insert them as arguments during
 #' dataclass creation.
 #'
+#' @param max_l The maximum length (or row count for data frames) of an object
+#' @param min_l The minimum length (or row count for data frames) of an object
 #' @examples
 #' atm_vec(1, 10)   # An atomic vector of any type between 1 and 10 elements
 #' dte_vec(1)       # A single date

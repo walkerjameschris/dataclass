@@ -6,7 +6,7 @@
 #' with several build in validators, but you can define a custom validator as
 #' an anonymous function or named function to be bundled with your data.
 #'
-#' This function will return a new function with named argument for each of the
+#' This function will return a new function with named arguments for each of the
 #' elements you define here. If you want to use your dataclass on data frames or
 #' tibbles you must pass the dataclass to data_validator() to modify behavior.
 #'
