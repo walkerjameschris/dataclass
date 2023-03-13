@@ -1,18 +1,14 @@
 Package: dataclass
 Type: Package
 Title: Easily Create Structured Lists or Data Frames with Input Validation
-Version: 0.1.5
+Version: 0.1.6
 Author: Chris Walker
 Maintainer: Chris Walker <walkerjameschris@gmail.com>
-Description: Easily define templated lists with an associated validator function
-    for each element in the list. For example, if you wanted to create a list
-    with a min date, max date, and a dataframe, you could use dataclass to
-    validate that each of the elements are present and correct. This package
-    comes bundled with common validators, however, you can easily define your
-    own with an anonymous function. This could be considered a very-minimal
-    variant of the S7 standard aimed at standardizing structured data generation
-    within an R process. It can also be used to validate data frames (or data
-    frame like objects).
+Description: Easily define templated lists and data frames with an associated
+    validator function for each element. This could be considered a very-minimal
+    S7-like standard aimed at validating data frames and lists; two data
+    structures the majority of R programmers know well.
+License: MIT + file LICENSE
 License: MIT
 Encoding: UTF-8
 Imports: purrr, rlang, glue, magrittr, tibble
