@@ -43,6 +43,18 @@ make_validator <- function(validator, l_fun = length) {
 data_validator <- function(x) {
   
   function(data) {
+    
+    dc_names <- names(formals(x))
+    df_names <- names(data)
+
+    if (!all(names(data) %in% dc_names)) {
+      known <- glue::glue_collapse(dc_names, sep = ", ")
+      stop(glue::glue(
+        "dataclass can only check for known columns: {known}\n",
+        "Ensure no additional columns are present!"
+      ))
+    }
+    
     do.call(x, data) %>%
       tibble::as_tibble()
   }
@@ -71,6 +83,7 @@ data_validator <- function(x) {
 #' num_vec()        # A numeric vector of any length
 #' chr_vec(1)       # A single string
 #' lgl_vec(5, 10)   # A logical vector between 5 and 10 elements in length
+#' fct_vec(100)     # A factor vector with at most 100 elements
 #' df_like(Inf, 50) # A data object with at least 50 rows
 #' any_obj()        # Allows any object without validation (can be dangerous!)
 #' @export
@@ -97,6 +110,10 @@ chr_vec <- make_validator(rlang::is_bare_character)
 #' @describeIn any_obj Validate a logical vector
 #' @export
 lgl_vec <- make_validator(rlang::is_bare_logical)
+
+#' @describeIn any_obj Validate a factor vector
+#' @export
+fct_vec <- make_validator(is.factor)
 
 #' @describeIn any_obj Validate a data like object
 #' @export

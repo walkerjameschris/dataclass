@@ -7,6 +7,7 @@
 \alias{num_vec}
 \alias{chr_vec}
 \alias{lgl_vec}
+\alias{fct_vec}
 \alias{df_like}
 \title{Validate dataclass inputs}
 \usage{
@@ -21,6 +22,8 @@ num_vec(max_l = Inf, min_l = 1)
 chr_vec(max_l = Inf, min_l = 1)
 
 lgl_vec(max_l = Inf, min_l = 1)
+
+fct_vec(max_l = Inf, min_l = 1)
 
 df_like(max_l = Inf, min_l = 1)
 }
@@ -56,6 +59,8 @@ dataclass creation.
 
 \item \code{lgl_vec()}: Validate a logical vector
 
+\item \code{fct_vec()}: Validate a factor vector
+
 \item \code{df_like()}: Validate a data like object
 
 }}
@@ -65,6 +70,7 @@ dte_vec(1)       # A single date
 num_vec()        # A numeric vector of any length
 chr_vec(1)       # A single string
 lgl_vec(5, 10)   # A logical vector between 5 and 10 elements in length
+fct_vec(100)     # A factor vector with at most 100 elements
 df_like(Inf, 50) # A data object with at least 50 rows
 any_obj()        # Allows any object without validation (can be dangerous!)
 }
