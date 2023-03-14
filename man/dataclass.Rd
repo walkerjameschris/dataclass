@@ -9,11 +9,19 @@ dataclass(...)
 \arguments{
 \item{...}{Elements to validate (i.e., dte_vec() will validate a date vector)}
 }
+\value{
+A function with the following properties:
+
+* An argument for each element provided to dataclass()
+* Each argument in the returned function will validate inputs
+* An error occurs if new elements passed to the returned function are invalid
+* List is returned if new elements passed to the returned function are valid
+}
 \description{
 Building a dataclass is easy! Provide names for each of the elements you want
 in your dataclass and an associated validator. The dataclass package comes
 with several built in validators, but you can define a custom validator as
-an anonymous function or named function to be bundled with your data.
+an anonymous function or named function to be bundled with your dataclass.
 }
 \details{
 dataclass() will return a new function with named arguments for each of the
@@ -21,7 +29,7 @@ elements you define here. If you want to use your dataclass on data frames or
 tibbles you must pass the dataclass to data_validator() to modify behavior.
 }
 \examples{
-\dontrun{
+\donttest{
 my_dataclass <- dataclass(
   min_date = dte_vec(1), # Ensures min_date is a date vector of length 1
   max_date = dte_vec(1), # Ensures max_date is a date vector of length 1

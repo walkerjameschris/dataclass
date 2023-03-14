@@ -19,8 +19,18 @@ make_validator <- function(validator, l_fun = length) {
 #' function to modify behavior.
 #' 
 #' @param x A dataclass object
+#' @return
+#' A function with the following properties:
+#'
+#' * A modified dataclass function designed to accept data frames
+#' * A single argument to test new data frames
+#' * Each column in a new data frame will be tested
+#' * An error occurs if new data passed to the returned function are invalid
+#' * Data is returned if new data passed to the returned function are valid
+#' 
+#' 
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' my_df_dataclass <-
 #'  dataclass(
 #'    dte_col = dte_vec(),
@@ -48,10 +58,10 @@ data_validator <- function(x) {
     df_names <- names(data)
 
     if (!all(names(data) %in% dc_names)) {
-      known <- glue::glue_collapse(dc_names, sep = ", ")
-      stop(glue::glue(
-        "dataclass can only check for known columns: {known}\n",
-        "Ensure no additional columns are present!"
+      cli::cli_abort(c(
+        "Ensure no additional columns are present!",
+        "dataclass can only check for these known columns:",
+        purrr::set_names(dc_names, "i")
       ))
     }
     
@@ -77,7 +87,15 @@ data_validator <- function(x) {
 #'
 #' @param max_l The maximum length (or row count for data frames) of an object
 #' @param min_l The minimum length (or row count for data frames) of an object
+#' @return
+#' A function with the following properties:
+#'
+#' * Accepts vector (or data frame in the case of df_like()) to be tested
+#' * The returned functions are run when the created dataclass is called
+#' * Returned functions each return TRUE or FALSE if new elements are valid
+#' 
 #' @examples
+#' \donttest{
 #' atm_vec(1, 10)   # An atomic vector of any type between 1 and 10 elements
 #' dte_vec(1)       # A single date
 #' num_vec()        # A numeric vector of any length
@@ -86,6 +104,7 @@ data_validator <- function(x) {
 #' fct_vec(100)     # A factor vector with at most 100 elements
 #' df_like(Inf, 50) # A data object with at least 50 rows
 #' any_obj()        # Allows any object without validation (can be dangerous!)
+#' }
 #' @export
 any_obj <- function() function(x) TRUE
 

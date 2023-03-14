@@ -95,6 +95,30 @@ testthat::test_that("Invalid logical input:", {
   )
 })
 
+testthat::test_that("Invalid factor input:", {
+  
+  # Logical input is not logical
+  testthat::expect_error(
+    dataclass::dataclass(lgl = dataclass::lgl_vec())(
+      lgl = "Not logical!"
+    )
+  )
+  
+  # Logical input too long
+  testthat::expect_error(
+    dataclass::dataclass(lgl = dataclass::lgl_vec(1))(
+      lgl = factor(c(1, 1, 2, 3))
+    )
+  )
+  
+  # Logical input too short
+  testthat::expect_error(
+    dataclass::dataclass(lgl = dataclass::lgl_vec(Inf, 3))(
+      lgl = factor(c(1, 3))
+    )
+  )
+})
+
 testthat::test_that("Invalid data input:", {
   
   # Data input is not data like
@@ -127,4 +151,24 @@ testthat::test_that("Passing data into un-converted dataclass:", {
       tibble::tibble(my_col = "")
     )
   )
+})
+
+testthat::test_that("Passing unknown columns into dataclass:", {
+  
+  test_class <-
+    dataclass::dataclass(
+      my_col = dataclass::chr_vec(),
+      column = dataclass::atm_vec()
+    ) %>%
+    dataclass::data_validator()
+  
+  test_df <-
+    tibble::tibble(
+      my_col = "",
+      column = "",
+      other = 1
+    )
+  
+  # Unknown columns
+  testthat::expect_error(test_class(test_df))
 })

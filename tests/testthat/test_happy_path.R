@@ -11,6 +11,9 @@ test_list_class <- dataclass::dataclass(
   lgl_anyl = dataclass::lgl_vec(),
   lgl_et_1 = dataclass::lgl_vec(1),
   lgl_gt_1 = dataclass::lgl_vec(Inf, 2),
+  fct_anyl = dataclass::fct_vec(),
+  fct_et_1 = dataclass::fct_vec(1),
+  fct_gt_1 = dataclass::fct_vec(Inf, 2),
   dfl_anyl = dataclass::df_like(),
   dfl_et_1 = dataclass::df_like(1),
   dfl_gt_1 = dataclass::df_like(Inf, 2),
@@ -18,22 +21,25 @@ test_list_class <- dataclass::dataclass(
 )
 
 test_list_out <- list(
-  dte_anyl = as.Date("2022-01-01"),
+  dte_anyl = rep(as.Date("2022-01-01"), sample.int(100, 1)),
   dte_et_1 = as.Date("2022-01-01"),
   dte_gt_1 = as.Date(c("2022-01-01", Sys.Date())),
-  atm_anyl = TRUE,
+  atm_anyl = rep(TRUE, sample.int(100, 1)),
   atm_et_1 = "A note!",
   atm_gt_1 = c(1, 2, 3, 4, 5),
-  num_anyl = 1,
+  num_anyl = rep(1, sample.int(100, 1)),
   num_et_1 = 3.14159,
   num_gt_1 = seq(0, 10, 0.1),
-  lgl_anyl = TRUE,
+  lgl_anyl = rep(TRUE, sample.int(100, 1)),
   lgl_et_1 = FALSE,
   lgl_gt_1 = (seq(10) %% 2) == 1,
-  dfl_anyl = tibble::tibble(col = 1),
+  fct_anyl = factor(sample.int(100)),
+  fct_et_1 = factor(FALSE),
+  fct_gt_1 = factor(c("a", "b", "c")),
+  dfl_anyl = tibble::tibble(col = rep(1, sample.int(100, 1))),
   dfl_et_1 = data.frame(col = "a"),
   dfl_gt_1 = data.table::data.table(col_1 = c(1, 2), col_2 = c("a", "b")),
-  any_objt = list(mtcars, lm(vs ~ am, mtcars), list(x = 2))
+  any_objt = list(mtcars, lm(vs ~ am, mtcars), list(x = sample.int(10)))
 )
 
 test_df_class <-
@@ -41,7 +47,8 @@ test_df_class <-
     dte_col = dataclass::dte_vec(),
     atm_col = dataclass::atm_vec(),
     num_col = dataclass::num_vec(),
-    lgl_col = dataclass::lgl_vec()
+    lgl_col = dataclass::lgl_vec(),
+    fct_col = dataclass::fct_vec()
   ) |>
   dataclass::data_validator()
 
@@ -49,7 +56,8 @@ test_tibble_out <- tibble::tibble(
   dte_col = as.Date(c("2022-01-01", "2023-01-01")),
   atm_col = c(1, 2),
   num_col = c(1.02, 2.32),
-  lgl_col = c(TRUE, FALSE)
+  lgl_col = c(TRUE, FALSE),
+  fct_col = factor(c(1, 2))
 )
 
 test_df_out <- as.data.frame(test_tibble_out)

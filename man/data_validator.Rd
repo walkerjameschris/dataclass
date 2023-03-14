@@ -9,13 +9,22 @@ data_validator(x)
 \arguments{
 \item{x}{A dataclass object}
 }
+\value{
+A function with the following properties:
+
+* A modified dataclass function designed to accept data frames
+* A single argument to test new data frames
+* Each column in a new data frame will be tested
+* An error occurs if new data passed to the returned function are invalid
+* Data is returned if new data passed to the returned function are valid
+}
 \description{
 If you intend to use your dataclass to validate data frame like object such
 as tibbles, data frames, or data tables, pass the dataclass into this 
 function to modify behavior.
 }
 \examples{
-\dontrun{
+\donttest{
 my_df_dataclass <-
  dataclass(
    dte_col = dte_vec(),
