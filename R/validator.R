@@ -48,10 +48,10 @@ data_validator <- function(x) {
     df_names <- names(data)
 
     if (!all(names(data) %in% dc_names)) {
-      known <- glue::glue_collapse(dc_names, sep = ", ")
-      stop(glue::glue(
-        "dataclass can only check for known columns: {known}\n",
-        "Ensure no additional columns are present!"
+      cli::cli_abort(c(
+        "Ensure no additional columns are present!",
+        "dataclass can only check for these known columns:",
+        purrr::set_names(dc_names, "i")
       ))
     }
     

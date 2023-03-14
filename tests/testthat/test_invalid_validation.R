@@ -128,3 +128,23 @@ testthat::test_that("Passing data into un-converted dataclass:", {
     )
   )
 })
+
+testthat::test_that("Passing unknown columns into dataclass:", {
+  
+  test_class <-
+    dataclass::dataclass(
+      my_col = dataclass::chr_vec(),
+      column = dataclass::atm_vec()
+    ) %>%
+    dataclass::data_validator()
+  
+  test_df <-
+    tibble::tibble(
+      my_col = "",
+      column = "",
+      other = 1
+    )
+  
+  # Unknown columns
+  testthat::expect_error(test_class(test_df))
+})

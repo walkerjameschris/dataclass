@@ -13,7 +13,7 @@ dataclass(...)
 Building a dataclass is easy! Provide names for each of the elements you want
 in your dataclass and an associated validator. The dataclass package comes
 with several built in validators, but you can define a custom validator as
-an anonymous function or named function to be bundled with your data.
+an anonymous function or named function to be bundled with your dataclass.
 }
 \details{
 dataclass() will return a new function with named arguments for each of the

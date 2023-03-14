@@ -18,22 +18,22 @@ test_list_class <- dataclass::dataclass(
 )
 
 test_list_out <- list(
-  dte_anyl = as.Date("2022-01-01"),
+  dte_anyl = rep(as.Date("2022-01-01"), sample.int(100, 1)),
   dte_et_1 = as.Date("2022-01-01"),
   dte_gt_1 = as.Date(c("2022-01-01", Sys.Date())),
-  atm_anyl = TRUE,
+  atm_anyl = rep(TRUE, sample.int(100, 1)),
   atm_et_1 = "A note!",
   atm_gt_1 = c(1, 2, 3, 4, 5),
-  num_anyl = 1,
+  num_anyl = rep(1, sample.int(100, 1)),
   num_et_1 = 3.14159,
   num_gt_1 = seq(0, 10, 0.1),
-  lgl_anyl = TRUE,
+  lgl_anyl = rep(TRUE, sample.int(100, 1)),
   lgl_et_1 = FALSE,
   lgl_gt_1 = (seq(10) %% 2) == 1,
-  dfl_anyl = tibble::tibble(col = 1),
+  dfl_anyl = tibble::tibble(col = rep(1, sample.int(100, 1))),
   dfl_et_1 = data.frame(col = "a"),
   dfl_gt_1 = data.table::data.table(col_1 = c(1, 2), col_2 = c("a", "b")),
-  any_objt = list(mtcars, lm(vs ~ am, mtcars), list(x = 2))
+  any_objt = list(mtcars, lm(vs ~ am, mtcars), list(x = sample.int(10)))
 )
 
 test_df_class <-
