@@ -30,7 +30,6 @@ make_validator <- function(validator, l_fun = length) {
 #' 
 #' 
 #' @examples
-#' \donttest{
 #' my_df_dataclass <-
 #'  dataclass(
 #'    dte_col = dte_vec(),
@@ -48,7 +47,6 @@ make_validator <- function(validator, l_fun = length) {
 #'  new_col = 100
 #' ) %>%
 #'  my_df_dataclass()
-#' }
 #' @export
 data_validator <- function(x) {
   
@@ -95,7 +93,6 @@ data_validator <- function(x) {
 #' * Returned functions each return TRUE or FALSE if new elements are valid
 #' 
 #' @examples
-#' \donttest{
 #' atm_vec(1, 10)   # An atomic vector of any type between 1 and 10 elements
 #' dte_vec(1)       # A single date
 #' num_vec()        # A numeric vector of any length
@@ -104,7 +101,6 @@ data_validator <- function(x) {
 #' fct_vec(100)     # A factor vector with at most 100 elements
 #' df_like(Inf, 50) # A data object with at least 50 rows
 #' any_obj()        # Allows any object without validation (can be dangerous!)
-#' }
 #' @export
 any_obj <- function() function(x) TRUE
 

@@ -24,7 +24,6 @@ as tibbles, data frames, or data tables, pass the dataclass into this
 function to modify behavior.
 }
 \examples{
-\donttest{
 my_df_dataclass <-
  dataclass(
    dte_col = dte_vec(),
@@ -42,5 +41,4 @@ tibble(
  new_col = 100
 ) \%>\%
  my_df_dataclass()
-}
 }

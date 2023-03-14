@@ -20,7 +20,6 @@
 #' * List is returned if new elements passed to the returned function are valid
 #' 
 #' @examples
-#' \donttest{
 #' my_dataclass <- dataclass(
 #'   min_date = dte_vec(1), # Ensures min_date is a date vector of length 1
 #'   max_date = dte_vec(1), # Ensures max_date is a date vector of length 1
@@ -33,14 +32,6 @@
 #'   min_date = as.Date("2022-01-01"),
 #'   max_date = as.Date("2023-01-01"),
 #'   run_data = head(mtcars),
-#'   run_note = "A note!"
-#' )
-#'
-#' # This throws an error since run_data is not a data frame
-#' my_dataclass(
-#'   min_date = as.Date("2022-01-01"),
-#'   max_date = as.Date("2023-01-01"),
-#'   run_data = c(1, 2, 3),
 #'   run_note = "A note!"
 #' )
 #'
@@ -69,7 +60,6 @@
 #'  new_col = 100
 #' ) %>%
 #'  my_df_dataclass()
-#' }
 #' @export
 #' @importFrom magrittr `%>%`
 dataclass <- function(...) {
