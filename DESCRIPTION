@@ -1,7 +1,7 @@
 Package: dataclass
 Type: Package
 Title: Easily Create Structured Lists or Data Frames with Input Validation
-Version: 0.1.6
+Version: 0.1.7
 Author: Chris Walker
 Maintainer: Chris Walker <walkerjameschris@gmail.com>
 Description: Easily define templated lists and data frames with an associated
@@ -9,7 +9,6 @@ Description: Easily define templated lists and data frames with an associated
     S7-like standard aimed at validating data frames and lists; two data
     structures the majority of R programmers know well.
 License: MIT + file LICENSE
-License: MIT
 Encoding: UTF-8
 Imports: purrr, rlang, glue, magrittr, tibble
 RoxygenNote: 7.2.3
