@@ -11,8 +11,16 @@
 #' tibbles you must pass the dataclass to data_validator() to modify behavior.
 #' 
 #' @param ... Elements to validate (i.e., dte_vec() will validate a date vector)
+#' @return
+#' A function with the following properties:
+#'
+#' * An argument for each element provided to dataclass()
+#' * Each argument in the returned function will validate inputs
+#' * An error occurs if new elements passed to the returned function are invalid
+#' * List is returned if new elements passed to the returned function are valid
+#' 
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' my_dataclass <- dataclass(
 #'   min_date = dte_vec(1), # Ensures min_date is a date vector of length 1
 #'   max_date = dte_vec(1), # Ensures max_date is a date vector of length 1

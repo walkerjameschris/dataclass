@@ -95,6 +95,30 @@ testthat::test_that("Invalid logical input:", {
   )
 })
 
+testthat::test_that("Invalid factor input:", {
+  
+  # Logical input is not logical
+  testthat::expect_error(
+    dataclass::dataclass(lgl = dataclass::lgl_vec())(
+      lgl = "Not logical!"
+    )
+  )
+  
+  # Logical input too long
+  testthat::expect_error(
+    dataclass::dataclass(lgl = dataclass::lgl_vec(1))(
+      lgl = factor(c(1, 1, 2, 3))
+    )
+  )
+  
+  # Logical input too short
+  testthat::expect_error(
+    dataclass::dataclass(lgl = dataclass::lgl_vec(Inf, 3))(
+      lgl = factor(c(1, 3))
+    )
+  )
+})
+
 testthat::test_that("Invalid data input:", {
   
   # Data input is not data like

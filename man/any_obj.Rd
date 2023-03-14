@@ -32,6 +32,13 @@ df_like(max_l = Inf, min_l = 1)
 
 \item{min_l}{The minimum length (or row count for data frames) of an object}
 }
+\value{
+A function with the following properties:
+
+* Accepts vector (or data frame in the case of df_like()) to be tested
+* The returned functions are run when the created dataclass is called
+* Returned functions each return TRUE or FALSE if new elements are valid
+}
 \description{
 These are utility functions which can be used to validate dataclass inputs.
 All of these functions follow the same basic structure. If no arguments are
@@ -65,6 +72,7 @@ dataclass creation.
 
 }}
 \examples{
+\donttest{
 atm_vec(1, 10)   # An atomic vector of any type between 1 and 10 elements
 dte_vec(1)       # A single date
 num_vec()        # A numeric vector of any length
@@ -73,4 +81,5 @@ lgl_vec(5, 10)   # A logical vector between 5 and 10 elements in length
 fct_vec(100)     # A factor vector with at most 100 elements
 df_like(Inf, 50) # A data object with at least 50 rows
 any_obj()        # Allows any object without validation (can be dangerous!)
+}
 }

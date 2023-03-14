@@ -11,6 +11,9 @@ test_list_class <- dataclass::dataclass(
   lgl_anyl = dataclass::lgl_vec(),
   lgl_et_1 = dataclass::lgl_vec(1),
   lgl_gt_1 = dataclass::lgl_vec(Inf, 2),
+  fct_anyl = dataclass::fct_vec(),
+  fct_et_1 = dataclass::fct_vec(1),
+  fct_gt_1 = dataclass::fct_vec(Inf, 2),
   dfl_anyl = dataclass::df_like(),
   dfl_et_1 = dataclass::df_like(1),
   dfl_gt_1 = dataclass::df_like(Inf, 2),
@@ -30,6 +33,9 @@ test_list_out <- list(
   lgl_anyl = rep(TRUE, sample.int(100, 1)),
   lgl_et_1 = FALSE,
   lgl_gt_1 = (seq(10) %% 2) == 1,
+  fct_anyl = factor(sample.int(100)),
+  fct_et_1 = factor(FALSE),
+  fct_gt_1 = factor(c("a", "b", "c")),
   dfl_anyl = tibble::tibble(col = rep(1, sample.int(100, 1))),
   dfl_et_1 = data.frame(col = "a"),
   dfl_gt_1 = data.table::data.table(col_1 = c(1, 2), col_2 = c("a", "b")),
@@ -41,7 +47,8 @@ test_df_class <-
     dte_col = dataclass::dte_vec(),
     atm_col = dataclass::atm_vec(),
     num_col = dataclass::num_vec(),
-    lgl_col = dataclass::lgl_vec()
+    lgl_col = dataclass::lgl_vec(),
+    fct_col = dataclass::fct_vec()
   ) |>
   dataclass::data_validator()
 
@@ -49,7 +56,8 @@ test_tibble_out <- tibble::tibble(
   dte_col = as.Date(c("2022-01-01", "2023-01-01")),
   atm_col = c(1, 2),
   num_col = c(1.02, 2.32),
-  lgl_col = c(TRUE, FALSE)
+  lgl_col = c(TRUE, FALSE),
+  fct_col = factor(c(1, 2))
 )
 
 test_df_out <- as.data.frame(test_tibble_out)
