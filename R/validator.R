@@ -28,27 +28,22 @@ make_validator <- function(validator, l_fun = length) {
 #' * An error occurs if new data passed to the returned function are invalid
 #' * Data is returned if new data passed to the returned function are valid
 #' 
-#' 
 #' @examples
-#' \donttest{
+#' # Define a dataclass for creating data! Wrap in data_validator():
 #' my_df_dataclass <-
-#'  dataclass(
+#'  data_validator(dataclass(
 #'    dte_col = dte_vec(),
 #'    chr_col = chr_vec(),
-#'    # Custom column validator which ensures column is numeric and postitive!
-#'    new_col = function(x) num_vec(x) && all(x > 0)
-#'  ) %>%
-#'  # Tells dataclass it will be used on tibbles or data frames
-#'  data_validator()
+#'    # Custom column validator ensures values are positive!
+#'    new_col = function(x) all(x > 0)
+#'  ))
 #' 
-#' # Validate a tibble!
-#' tibble(
+#' # Validate a data frame or data frame like objects!
+#' my_df_dataclass(data.frame(
 #'  dte_col = as.Date("2022-01-01"),
 #'  chr_col = "String!",
 #'  new_col = 100
-#' ) %>%
-#'  my_df_dataclass()
-#' }
+#' ))
 #' @export
 data_validator <- function(x) {
   
@@ -95,7 +90,6 @@ data_validator <- function(x) {
 #' * Returned functions each return TRUE or FALSE if new elements are valid
 #' 
 #' @examples
-#' \donttest{
 #' atm_vec(1, 10)   # An atomic vector of any type between 1 and 10 elements
 #' dte_vec(1)       # A single date
 #' num_vec()        # A numeric vector of any length
@@ -104,7 +98,6 @@ data_validator <- function(x) {
 #' fct_vec(100)     # A factor vector with at most 100 elements
 #' df_like(Inf, 50) # A data object with at least 50 rows
 #' any_obj()        # Allows any object without validation (can be dangerous!)
-#' }
 #' @export
 any_obj <- function() function(x) TRUE
 

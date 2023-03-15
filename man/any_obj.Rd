@@ -72,7 +72,6 @@ dataclass creation.
 
 }}
 \examples{
-\donttest{
 atm_vec(1, 10)   # An atomic vector of any type between 1 and 10 elements
 dte_vec(1)       # A single date
 num_vec()        # A numeric vector of any length
@@ -81,5 +80,4 @@ lgl_vec(5, 10)   # A logical vector between 5 and 10 elements in length
 fct_vec(100)     # A factor vector with at most 100 elements
 df_like(Inf, 50) # A data object with at least 50 rows
 any_obj()        # Allows any object without validation (can be dangerous!)
-}
 }

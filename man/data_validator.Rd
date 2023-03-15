@@ -24,23 +24,19 @@ as tibbles, data frames, or data tables, pass the dataclass into this
 function to modify behavior.
 }
 \examples{
-\donttest{
+# Define a dataclass for creating data! Wrap in data_validator():
 my_df_dataclass <-
- dataclass(
+ data_validator(dataclass(
    dte_col = dte_vec(),
    chr_col = chr_vec(),
-   # Custom column validator which ensures column is numeric and postitive!
-   new_col = function(x) num_vec(x) && all(x > 0)
- ) \%>\%
- # Tells dataclass it will be used on tibbles or data frames
- data_validator()
+   # Custom column validator ensures values are positive!
+   new_col = function(x) all(x > 0)
+ ))
 
-# Validate a tibble!
-tibble(
+# Validate a data frame or data frame like objects!
+my_df_dataclass(data.frame(
  dte_col = as.Date("2022-01-01"),
  chr_col = "String!",
  new_col = 100
-) \%>\%
- my_df_dataclass()
-}
+))
 }
