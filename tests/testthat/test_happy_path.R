@@ -1,17 +1,20 @@
 test_list_class <- dataclass::dataclass(
-  dte_anyl = dataclass::dte_vec(),
-  dte_et_1 = dataclass::dte_vec(1),
-  dte_gt_1 = dataclass::dte_vec(Inf, 2),
-  atm_anyl = dataclass::atm_vec(),
-  atm_et_1 = dataclass::atm_vec(1),
-  atm_gt_1 = dataclass::atm_vec(Inf, 2),
-  num_anyl = dataclass::num_vec(),
-  num_et_1 = dataclass::num_vec(1),
-  num_gt_1 = dataclass::num_vec(Inf, 2),
-  lgl_anyl = dataclass::lgl_vec(),
-  lgl_et_1 = dataclass::lgl_vec(1),
-  lgl_gt_1 = dataclass::lgl_vec(Inf, 2),
-  dfl_objt = dataclass::df_like(),
+  dte_anyl = dataclass::dte_vec(level = sample(c("warn", "error"), 1)),
+  dte_et_1 = dataclass::dte_vec(1, level = sample(c("warn", "error"), 1)),
+  dte_gt_1 = dataclass::dte_vec(Inf, 2, level = sample(c("warn", "error"), 1)),
+  atm_anyl = dataclass::atm_vec(level = sample(c("warn", "error"), 1)),
+  atm_et_1 = dataclass::atm_vec(1, level = sample(c("warn", "error"), 1)),
+  atm_gt_1 = dataclass::atm_vec(Inf, 2, level = sample(c("warn", "error"), 1)),
+  num_anyl = dataclass::num_vec(level = sample(c("warn", "error"), 1)),
+  num_et_1 = dataclass::num_vec(1, level = sample(c("warn", "error"), 1)),
+  num_gt_1 = dataclass::num_vec(Inf, 2, level = sample(c("warn", "error"), 1)),
+  chr_anyl = dataclass::chr_vec(level = sample(c("warn", "error"), 1)),
+  chr_et_1 = dataclass::chr_vec(1, level = sample(c("warn", "error"), 1)),
+  chr_gt_1 = dataclass::chr_vec(Inf, 2, level = sample(c("warn", "error"), 1)),
+  lgl_anyl = dataclass::lgl_vec(level = sample(c("warn", "error"), 1)),
+  lgl_et_1 = dataclass::lgl_vec(1, level = sample(c("warn", "error"), 1)),
+  lgl_gt_1 = dataclass::lgl_vec(Inf, 2, level = sample(c("warn", "error"), 1)),
+  dfl_objt = dataclass::df_like(level = sample(c("warn", "error"), 1)),
   any_objt = dataclass::any_obj() 
 )
 
@@ -25,6 +28,9 @@ test_list_out <- list(
   num_anyl = rep(1, sample.int(100, 1)),
   num_et_1 = 3.14159,
   num_gt_1 = seq(0, 10, 0.1),
+  chr_anyl = rep("c", sample.int(100, 1)),
+  chr_et_1 = "chhsdc has xhdapdksmcpe",
+  chr_gt_1 = state.abb,
   lgl_anyl = rep(TRUE, sample.int(100, 1)),
   lgl_et_1 = FALSE,
   lgl_gt_1 = (seq(10) %% 2) == 1,
@@ -34,10 +40,11 @@ test_list_out <- list(
 
 test_df_class <-
   dataclass::dataclass(
-    dte_col = dataclass::dte_vec(),
-    atm_col = dataclass::atm_vec(),
-    num_col = dataclass::num_vec(),
-    lgl_col = dataclass::lgl_vec()
+    dte_col = dataclass::dte_vec(level = sample(c("warn", "error"), 1)),
+    atm_col = dataclass::atm_vec(level = sample(c("warn", "error"), 1)),
+    num_col = dataclass::num_vec(level = sample(c("warn", "error"), 1)),
+    chr_col = dataclass::chr_vec(level = sample(c("warn", "error"), 1)),
+    lgl_col = dataclass::lgl_vec(level = sample(c("warn", "error"), 1))
   ) |>
   dataclass::data_validator()
 
@@ -53,6 +60,7 @@ test_tibble_out <- tibble::tibble(
   dte_col = as.Date(c("2022-01-01", "2023-01-01")),
   atm_col = c(1, 2),
   num_col = c(1.02, 2.32),
+  chr_col = c("a", "b"),
   lgl_col = c(TRUE, FALSE)
 )
 

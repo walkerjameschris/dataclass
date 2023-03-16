@@ -30,3 +30,16 @@ testthat::test_that("Non-function validators:", {
     )
   )
 })
+
+testthat::test_that("Passing data into un-converted dataclass:", {
+  
+  # dataclass not converted
+  testthat::expect_error(
+    dataclass::dataclass(
+      my_col = dataclass::chr_vec(),
+      other_col = dataclass::num_vec()
+    )(
+      tibble::tibble(my_col = "")
+    )
+  )
+})

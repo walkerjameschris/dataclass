@@ -40,7 +40,7 @@
 #'   dataclass(
 #'     start_date = dte_vec(1),
 #'     # Ensures calculation is a column in this data and is data like
-#'     results_df = function(x) "calculation" %in% names(x) && df_like(x)
+#'     results_df = function(df) "calculation" %in% colnames(df)
 #'   )
 #' 
 #' # Define a dataclass for creating data! Wrap in data_validator():
