@@ -1,13 +1,82 @@
 
-make_validator <- function(validator, l_fun = length) {
-  # Generates validator functions
+make_atomic_validator <- function(validator) {
+  # Generates atomic validator functions
 
-  function(max_l = Inf, min_l = 1) {
+  function(
+    max_len = Inf,
+    min_len = 1,
+    max_val = Inf,
+    min_val = -Inf,
+    allowed = NA,
+    level = "error") {
+    # Function factory to generate validators
+    
+    # Check if level is error or warning
+    if (!(level %in% c("error", "warn"))) {
+      cli::cli_abort(c(
+        'Level must be "error" or "warn"!',
+        "i" = '`level = "error"` will halt if element is invalid',
+        "i" = '`level = "warn"` will throw a warning, but not halt'
+      ))
+    }
+    
+    # Check if dimension arguments are valid
+    dim_args <-
+      rlang::dots_list(
+        max_len,
+        min_len,
+        max_val,
+        min_val,
+        .named = TRUE
+      ) %>%
+      purrr::map_lgl(function(x) {
+        !rlang::is_atomic(x) || length(x) > 1 
+      })
+    
+    # Identify problematic inputs
+    prob_args <- names(dim_args[dim_args])
+    
+    if (length(prob_args) >= 1) {
+      cli::cli_abort(c(
+        "These elements are not single length atomic limits:",
+        purrr::set_names(prob_args, "x")
+      ))
+    }
+    
+    # Check allowable
+    if (!rlang::is_bare_atomic(allowed)) {
+      cli::cli_abort(c(
+        "x" = "`allowed` must be an atomic vector of allowable values",
+        "i" = 'You can also set `allowed` to NA to allow any values!'
+      ))
+    }
+    
     function(x) {
-      typ <- validator(x)
-      low <- l_fun(x) <= max_l
-      hi  <- l_fun(x) >= min_l
-      typ && low && hi
+      # Generate validity information
+      
+      # Early return for non vectors
+      if (!rlang::is_atomic(x)) {
+        return(list(result = FALSE, level = level))
+      }
+
+      # Test validity
+      result <-
+        all(c(
+          validator(x),
+          length(x) <= max_len,
+          length(x) >= min_len,
+          any(x >= min_val),
+          any(x <= max_val)
+        ))
+      
+      # Optionally check for allowable values
+      if (!all(is.na(allowed))) {
+        
+        allowed_res <- all(x %in% allowed)
+        result <- allowed_res && result
+      }
+      
+      list(result = result, level = level)
     }
   }
 }
@@ -19,6 +88,7 @@ make_validator <- function(validator, l_fun = length) {
 #' function to modify behavior.
 #' 
 #' @param x A dataclass object
+#' @param strict_cols Should additional columns be allowed in the output?
 #' @return
 #' A function with the following properties:
 #'
@@ -29,59 +99,115 @@ make_validator <- function(validator, l_fun = length) {
 #' * Data is returned if new data passed to the returned function are valid
 #' 
 #' @examples
-#' # Define a dataclass for creating data! Wrap in data_validator():
+#' # Define a dataclass for creating data! Pass to data_validator():
 #' my_df_dataclass <-
-#'  data_validator(dataclass(
+#'  dataclass(
 #'    dte_col = dte_vec(),
 #'    chr_col = chr_vec(),
 #'    # Custom column validator ensures values are positive!
 #'    new_col = function(x) all(x > 0)
-#'  ))
+#'  ) |>
+#'  data_validator()
 #' 
 #' # Validate a data frame or data frame like objects!
-#' my_df_dataclass(data.frame(
+#' data.frame(
 #'  dte_col = as.Date("2022-01-01"),
 #'  chr_col = "String!",
 #'  new_col = 100
-#' ))
+#' ) |>
+#'   my_df_dataclass()
+#' 
+#' # Allow additional columns in output
+#' test_df_class <-
+#'   dataclass(
+#'     dte_col = dte_vec()
+#'   ) |>
+#'   data_validator(strict_cols = FALSE)
+#'  
+#' tibble::tibble(
+#'   dte_col = as.Date("2022-01-01"),
+#'   other_col = "a"
+#' ) |>
+#'   test_df_class()
 #' @export
-data_validator <- function(x) {
+data_validator <- function(x, strict_cols = TRUE) {
   
   function(data) {
     
     dc_names <- names(formals(x))
     df_names <- names(data)
-
-    if (!all(names(data) %in% dc_names)) {
+    
+    # Checks if columns defined in dataclass are in data
+    if (!all(dc_names %in% df_names)) {
       cli::cli_abort(c(
-        "Ensure no additional columns are present!",
-        "dataclass can only check for these known columns:",
-        purrr::set_names(dc_names, "i")
+        "Input data is missing these columns:",
+        purrr::set_names(setdiff(dc_names, df_names), "i")
       ))
     }
     
-    do.call(x, data) %>%
-      tibble::as_tibble()
+    # Checks for bloat columns if strict_cols = TRUE
+    if (strict_cols) {
+      if (!all(df_names %in% dc_names)) {
+        cli::cli_abort(c(
+          "Ensure no additional columns are present!",
+          "dataclass can only check for these known columns:",
+          purrr::set_names(dc_names, "i"),
+          "i" = "Set data_validator(strict_cols = FALSE)` to bypass this check."
+        ))
+      }
+    }
+    
+    # Main columns to check
+    subset_df <-
+      data %>%
+      dplyr::select(
+        dplyr::all_of(dc_names)
+      )
+    
+    # Additional columns to check
+    extra_df <-
+      data %>%
+      dplyr::select(
+        - dplyr::all_of(dc_names)
+      )
+    
+    # Call dataclass and reassemble data
+    do.call(x, subset_df) %>%
+      tibble::as_tibble() %>%
+      dplyr::bind_cols(extra_df) %>%
+      dplyr::select(
+        dplyr::all_of(df_names)
+      )
   }
 }
 
-#' Validate dataclass inputs
+#' Validate atomic vectors with dataclass
 #'
 #' These are utility functions which can be used to validate dataclass inputs.
 #' All of these functions follow the same basic structure. If no arguments are
 #' provided they will be passed as basic type validators. However, you can
-#' specify a max and min length (or rowcount in the case of df_like()). We put
-#' max as the first argument because we are typically concerned with the max
-#' amount of values more than the minimum. For example, dte_vec(1) ensures a
-#' date vector of length one is returned (in other words a single date).
+#' specify a max and min length. We put max as the first argument because we are
+#' typically concerned with the max amount of values more than the minimum. For
+#' example, dte_vec(1) ensures a date vector of length one is returned (in other
+#' words a single date). Alternatively, dte_vec(10, 5) allows between 5 and 10
+#' elements in the vector.
+#'
+#' You can also specify max and min values in addition to a vector of allowable
+#' values. Finally, you can set the level of the validator. Setting
+#' `level = "warn"` will warn you if a violation occurs whereas
+#' `level = "error"` will halt upon violation.
 #'
 #' This function will return a new function with named argument for each of the
 #' elements you define here. If you want to define more customized behavior you
 #' can create your own validator functions and insert them as arguments during
 #' dataclass creation.
 #'
-#' @param max_l The maximum length (or row count for data frames) of an object
-#' @param min_l The minimum length (or row count for data frames) of an object
+#' @param max_len The maximum length of a vector
+#' @param min_len The minimum length of a vector
+#' @param max_val The maximum value of a vector
+#' @param min_val The minimum value of a vector
+#' @param allowed Allowable values for a vector
+#' @param level   "warn" print a warning while "error" will halt upon violation
 #' @return
 #' A function with the following properties:
 #'
@@ -90,43 +216,43 @@ data_validator <- function(x) {
 #' * Returned functions each return TRUE or FALSE if new elements are valid
 #' 
 #' @examples
-#' atm_vec(1, 10)   # An atomic vector of any type between 1 and 10 elements
-#' dte_vec(1)       # A single date
-#' num_vec()        # A numeric vector of any length
-#' chr_vec(1)       # A single string
-#' lgl_vec(5, 10)   # A logical vector between 5 and 10 elements in length
-#' fct_vec(100)     # A factor vector with at most 100 elements
-#' df_like(Inf, 50) # A data object with at least 50 rows
-#' any_obj()        # Allows any object without validation (can be dangerous!)
+#' dte_vec(1) # A single date
+#' num_vec()  # A numeric vector of any length
+#' chr_vec(1) # A single string
+#' lgl_vec(5) # A logical vector with at most 5 elements
+#' atm_vec(4, 1) # An atomic vector of any type between 1 and 4 elements
+#' num_vec(min_val = 0) # A numeric vector where all elements are positive
+#' chr_vec(allowed = c("a", "b")) # Character vector only allowing "a" and "b"
+#' dte_vec(level = "warn") # Date vector which warns if non-date is provided
+#' any_obj() # Allows any object without validation (can be dangerous!)
+#' df_like() # Tests if something is data frame like
 #' @export
 any_obj <- function() function(x) TRUE
 
 #' @describeIn any_obj Validate a vector
 #' @export
-atm_vec <- make_validator(rlang::is_bare_atomic)
+atm_vec <- make_atomic_validator(rlang::is_atomic)
 
 #' @describeIn any_obj Validate a date vector
 #' @export
-dte_vec <- make_validator(function(x) {
+dte_vec <- make_atomic_validator(function(x) {
   inherits(x, "Date") || inherits(x, "POSIXct")
 })
 
 #' @describeIn any_obj Validate a numeric vector
 #' @export
-num_vec <- make_validator(rlang::is_bare_numeric)
+num_vec <- make_atomic_validator(rlang::is_bare_numeric)
 
 #' @describeIn any_obj Validate a character vector
 #' @export
-chr_vec <- make_validator(rlang::is_bare_character)
+chr_vec <- make_atomic_validator(rlang::is_bare_character)
 
 #' @describeIn any_obj Validate a logical vector
 #' @export
-lgl_vec <- make_validator(rlang::is_bare_logical)
+lgl_vec <- make_atomic_validator(rlang::is_bare_logical)
 
-#' @describeIn any_obj Validate a factor vector
+#' @describeIn any_obj Ensure something is data like
 #' @export
-fct_vec <- make_validator(is.factor)
-
-#' @describeIn any_obj Validate a data like object
-#' @export
-df_like <- make_validator(function(x) inherits(x, "data.frame"), nrow)
+df_like <- function() {
+  function(x) inherits(x, "data.frame")
+}

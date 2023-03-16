@@ -21,12 +21,12 @@
 #' 
 #' @examples
 #' my_dataclass <- dataclass(
-#'   min_date = dte_vec(1), # Ensures min_date is a date vector of length 1
-#'   max_date = dte_vec(1), # Ensures max_date is a date vector of length 1
-#'   run_data = df_like(),  # Ensures run_date is a data object (i.e. tibble)
-#'   run_note = chr_vec(1)  # Ensures run_note is a character vector of length 1
+#'  min_date = dte_vec(1), # Ensures min_date is a date vector of length 1
+#'  max_date = dte_vec(1), # Ensures max_date is a date vector of length 1
+#'  run_data = df_like(),  # Ensures run_date is a data object (i.e. tibble)
+#'  run_note = chr_vec(1)  # Ensures run_note is a character vector of length 1
 #' )
-#'
+#' 
 #' # This returns a validated list!
 #' my_dataclass(
 #'   min_date = as.Date("2022-01-01"),
@@ -34,7 +34,7 @@
 #'   run_data = head(mtcars, 2),
 #'   run_note = "A note!"
 #' )
-#'
+#' 
 #' # An example with anonymous functions
 #' a_new_dataclass <-
 #'   dataclass(
@@ -45,19 +45,21 @@
 #' 
 #' # Define a dataclass for creating data! Wrap in data_validator():
 #' my_df_dataclass <-
-#'  data_validator(dataclass(
-#'    dte_col = dte_vec(),
-#'    chr_col = chr_vec(),
-#'    # Custom column validator ensures values are positive!
-#'    new_col = function(x) all(x > 0)
-#'  ))
+#'   dataclass(
+#'     dte_col = dte_vec(),
+#'     chr_col = chr_vec(),
+#'     # Custom column validator ensures values are positive!
+#'     new_col = function(x) all(x > 0)
+#'   ) |>
+#'   data_validator()
 #' 
 #' # Validate a data frame or data frame like objects!
-#' my_df_dataclass(data.frame(
-#'  dte_col = as.Date("2022-01-01"),
-#'  chr_col = "String!",
-#'  new_col = 100
-#' ))
+#' data.frame(
+#'   dte_col = as.Date("2022-01-01"),
+#'   chr_col = "String!",
+#'   new_col = 100
+#' ) |>
+#'   my_df_dataclass()
 #' @export
 #' @importFrom magrittr `%>%`
 dataclass <- function(...) {
@@ -92,7 +94,7 @@ dataclass <- function(...) {
   # Ensures inputs are functions
   if (length(non_functions) >= 1) {
     cli::cli_abort(c(
-      "All validators must be named functions!",
+      "These validators are not named functions:",
       purrr::set_names(non_functions, "x")
     ))
   }
@@ -107,18 +109,87 @@ dataclass <- function(...) {
     # Determine input validity
     valid <-
       inputs %>%
-      purrr::imap_lgl(function(input, name) {
+      purrr::imap(function(input, name) {
+
+        # Determine which validator to use
         validator <- validators[[name]]
-        validator(input)
-      })
-
-    # Subset to invalid inputs
-    invalid <- valid[!valid]
-
-    if (length(invalid) >= 1) {
+        result <- validator(input)
+        
+        # Upgrade simple validators
+        if (rlang::is_bare_logical(result)) {
+          
+          return(tibble::tibble(
+            name,
+            valid = result,
+            level = "error"
+          ))
+        }
+        
+        # Handle advanced validators
+        if (rlang::is_bare_list(result)) {
+          return(tibble::tibble(
+            name,
+            valid = result$result,
+            level = result$level
+          ))
+        }
+        
+        tibble::tibble(
+          name,
+          valid = "unknown",
+          level = "unknown"
+        )
+      }) %>%
+      dplyr::bind_rows()
+    
+    # Problematic validators
+    problematic <-
+      valid %>%
+      dplyr::filter(
+        valid == "unknown",
+        level == "unknown"
+      ) %>%
+      dplyr::pull(name)
+    
+    if (length(problematic) >= 1) {
       cli::cli_abort(c(
-        "The following elements are invalid:",
-        purrr::set_names(names(invalid), "x")
+        "These validators returned an unexpected result!",
+        purrr::set_names(problematic, "x"),
+        "i" = "Custom validators can only return TRUE/FALSE.",
+        "i" = "dataclass built-in validators have more advanced behavior.",
+        "See the documentation for more examples."
+      ))
+    }
+    
+    # Find warn level issues
+    warn_level <-
+      valid %>%
+      dplyr::filter(
+        level %in% "warn",
+        valid %in% FALSE
+      ) %>%
+      dplyr::pull(name)
+    
+    if (length(warn_level) >= 1) {
+      cli::cli_warn(c(
+        "The following elements have warn-level violations:",
+        purrr::set_names(warn_level, "x")
+      ))
+    }
+      
+    # Find error level issues
+    error_level <-
+      valid %>%
+      dplyr::filter(
+        level %in% "error",
+        valid %in% FALSE
+      ) %>%
+      dplyr::pull(name)
+
+    if (length(error_level) >= 1) {
+      cli::cli_abort(c(
+        "The following elements have error-level violations:",
+        purrr::set_names(error_level, "x")
       ))
     }
 

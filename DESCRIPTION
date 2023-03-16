@@ -13,7 +13,7 @@ Description: Easily define templated lists and data frames with an associated
     structures the majority of R programmers know well.
 License: MIT + file LICENSE
 Encoding: UTF-8
-Imports: purrr, rlang, glue, magrittr, tibble, cli
+Imports: purrr, rlang, glue, magrittr, tibble, cli, dplyr
 RoxygenNote: 7.2.3
 NeedsCompilation: no
 Packaged: 2023-03-12 15:49:07 UTC; cjwal
