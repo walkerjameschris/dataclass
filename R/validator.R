@@ -128,59 +128,94 @@ data_validator <- function(x, strict_cols = TRUE) {
   }
 }
 
-#' Validate atomic vectors with dataclass
-#'
-#' These are utility functions which can be used to validate dataclass inputs.
-#' All of these functions follow the same basic structure. If no arguments are
-#' provided they will be passed as basic type validators. However, you can
-#' specify a max and min length. We put max as the first argument because we are
-#' typically concerned with the max amount of values more than the minimum. For
-#' example, dte_vec(1) ensures a date vector of length one is returned (in other
-#' words a single date). Alternatively, dte_vec(10, 5) allows between 5 and 10
-#' elements in the vector.
-#'
-#' You can also specify max and min values in addition to a vector of allowable
-#' values. Finally, you can set the level of the validator. Setting
-#' `level = "warn"` will warn you if a violation occurs whereas
-#' `level = "error"` will halt upon violation.
-#'
-#' This function will return a new function with named argument for each of the
-#' elements you define here. If you want to define more customized behavior you
-#' can create your own validator functions and insert them as arguments during
-#' dataclass creation.
-#'
-#' @param max_len The maximum length of a vector
-#' @param min_len The minimum length of a vector
-#' @param max_val The maximum value of a vector
-#' @param min_val The minimum value of a vector
-#' @param max_dte The maximum date of a vector
-#' @param min_dte The minimum date of a vector
-#' @param max_row The maximum row count of a data frame
-#' @param min_row The minimum row count of a data frame
-#' @param allowed Allowable values for a vector
-#' @param level   "warn" print a warning while "error" will halt upon violation
+#' Validator: Allow any object
+#' 
+#' This function is used to bypass dataclass checks for a given element. If you
+#' do not want dataclass to check a given element, set the element equal to
+#' any_obj() to allow any object. Keep in mind that while dataclass will bypass
+#' the check, the object must still be a valid R object. Furthermore, if you
+#' are using dataclass to create a tibble, then the object must be a valid
+#' tibble column type, even if additional checks are not considered. This can be
+#' dangerous because dataclass is designed to check objects, not bypass them.
+#' Use this validator sparingly and consider how you can write a stricter
+#' dataclass. 
+#' 
 #' @return
 #' A function with the following properties:
 #'
-#' * Accepts vector (or data frame in the case of df_like()) to be tested
-#' * The returned functions are run when the created dataclass is called
-#' * Returned functions each return TRUE or FALSE if new elements are valid
+#' * Always returns TRUE
+#' * Bypasses any dataclass checks
 #' 
 #' @examples
-#' dte_vec(1) # A single date
-#' num_vec()  # A numeric vector of any length
-#' chr_vec(1) # A single string
-#' lgl_vec(5) # A logical vector with at most 5 elements
-#' atm_vec(4, 1) # An atomic vector of any type between 1 and 4 elements
-#' num_vec(min_val = 0) # A numeric vector where all elements are positive
-#' chr_vec(allowed = c("a", "b")) # Character vector only allowing "a" and "b"
-#' dte_vec(level = "warn") # Date vector which warns if non-date is provided
-#' any_obj() # Allows any object without validation (can be dangerous!)
-#' df_like() # Tests if something is data frame like
+#' # Define a dataclass:
+#' my_dataclass <-
+#'  dataclass(
+#'    date_val = dte_vec(),
+#'    anything = any_obj()
+#'  )
+#' 
+#' # While `date_val` must be a date, `anything` can be any value!
+#' my_dataclass(
+#'   date_val = as.Date("2022-01-01"),
+#'   anything = lm(vs ~ am, mtcars)
+#' ) 
+#' 
+#' my_dataclass(
+#'   date_val = as.Date("2022-01-01"),
+#'   anything = c(1, 2, 3, 4, 5)
+#' ) 
+#' 
+#' my_dataclass(
+#'   date_val = as.Date("2022-01-01"),
+#'   anything = list(a = 1, b = 2)
+#' )
 #' @export
 any_obj <- function() function(x) TRUE
 
-#' @describeIn any_obj Validate a vector
+#' Validator: Check if element is atomic
+#' 
+#' This function is used to check whether something is atomic. Atomic elements
+#' are represented by simple vectors, (i.e., numeric, logical, character) but
+#' also include special vectors like Date vectors. You can use this function
+#' to check the length of a vector. You can also specify the level of a
+#' violation. If level is set to "warn" then invalid inputs will warn you.
+#' However, if level is set to "error" then invalid inputs will abort.
+#' 
+#' @param max_len The maximum length of an atomic element
+#' @param min_len The minimum length of an atomic element
+#' @param level Setting "warn" throws a warning, setting "error" halts 
+#' @return
+#' A function with the following properties:
+#'
+#' * Checks whether something is atomic
+#' * Determines whether the check will throw warning or error
+#' * Optionally checks for element length
+#' 
+#' @examples
+#' # Define a dataclass for testing atomic:
+#' my_dataclass <-
+#'  dataclass(
+#'    num_val = num_vec(),
+#'    # Setting warn means a warning will occur if violation is found
+#'    # The default is "error" which is stricter and will halt upon violation
+#'    atm_val = atm_vec(level = "warn") 
+#'  )
+#' 
+#' # While `num_val` must be a number, `atm_val` can be any atomic element!
+#' my_dataclass(
+#'   num_val = c(1, 2, 3),
+#'   atm_val = Sys.Date()
+#' ) 
+#' 
+#' my_dataclass(
+#'   num_val = c(1, 2, 3),
+#'   atm_val = c(TRUE, FALSE)
+#' ) 
+#' 
+#' my_dataclass(
+#'   num_val = c(1, 2, 3),
+#'   atm_val = c("This is", "a character!")
+#' ) 
 #' @export
 atm_vec <- function(max_len = Inf, min_len = 1, level = "error") {
   
@@ -204,7 +239,48 @@ atm_vec <- function(max_len = Inf, min_len = 1, level = "error") {
   }
 }
 
-#' @describeIn any_obj Validate a date vector
+#' Validator: Check if element is a date
+#' 
+#' This function is used to check whether something is a date. You can use this
+#' function to check the length of a date vector. You can also specify the level
+#' of a violation. If level is set to "warn" then invalid inputs will warn you.
+#' However, if level is set to "error" then invalid inputs will abort.
+#' 
+#' @param max_len The maximum length of a date element
+#' @param min_len The minimum length of a date element
+#' @param level Setting "warn" throws a warning, setting "error" halts 
+#' @return
+#' A function with the following properties:
+#'
+#' * Checks whether something is a date
+#' * Determines whether the check will throw warning or error
+#' * Optionally checks for element length
+#' 
+#' @examples
+#' # Define a dataclass for testing dates:
+#' my_dataclass <-
+#'  dataclass(
+#'    num_val = num_vec(),
+#'    # Setting warn means a warning will occur if violation is found
+#'    # The default is "error" which is stricter and will halt upon violation
+#'    dte_val = dte_vec(level = "warn") 
+#'  )
+#' 
+#' # While `num_val` must be a number, `dte_val` must be a date!
+#' my_dataclass(
+#'   num_val = c(1, 2, 3),
+#'   dte_val = Sys.Date()
+#' ) 
+#' 
+#' my_dataclass(
+#'   num_val = c(1, 2, 3),
+#'   dte_val = as.Date("2022-01-01")
+#' ) 
+#' 
+#' my_dataclass(
+#'   num_val = c(1, 2, 3),
+#'   dte_val = as.Date(c("2022-01-01", "2023-01-01"))
+#' ) 
 #' @export
 dte_vec <- function(max_len = Inf, min_len = 1, level = "error") {
   
@@ -228,7 +304,59 @@ dte_vec <- function(max_len = Inf, min_len = 1, level = "error") {
   }
 }
 
-#' @describeIn any_obj Validate a numeric vector
+#' Validator: Check if element is a number
+#' 
+#' This function is used to check whether something is a number. You can use
+#' this function to check the length and min-max of a number vector. You can
+#' also specify the level of a violation. If level is set to "warn" then invalid
+#' inputs will warn you. However, if level is set to "error" then invalid inputs
+#' will abort.
+#' 
+#' @param max_len The maximum length of a numeric element
+#' @param min_len The minimum length of a numeric element
+#' @param max_val The maximum value of a numeric element
+#' @param min_val The minimum value of a numeric element
+#' @param allowed A vector of allowable values
+#' @param level Setting "warn" throws a warning, setting "error" halts 
+#' @return
+#' A function with the following properties:
+#'
+#' * Checks whether something is a number vector
+#' * Determines whether the check will throw warning or error
+#' * Optionally checks for element length
+#' * Optionally checks for allowable values
+#' * Optionally checks for max/min
+#' 
+#' @examples
+#' # Define a dataclass for testing numbers:
+#' my_dataclass <-
+#'  dataclass(
+#'    dte_val = dte_vec(),
+#'    # Setting warn means a warning will occur if violation is found
+#'    # The default is "error" which is stricter and will halt upon violation
+#'    # We also set allowed to 0 and 1 which means elements must be 0 or 1
+#'    num_val = num_vec(level = "warn", allowed = c(0, 1)) 
+#'  )
+#' 
+#' # While `dte_val` must be a date, `num_val` must be 0 or 1!
+#' my_dataclass(
+#'   dte_val = Sys.Date(),
+#'   num_val = c(0, 1, 1, 0, 1)
+#' ) 
+#' 
+#' my_dataclass(
+#'   dte_val = Sys.Date(),
+#'   num_val = 1
+#' )
+#' 
+#' # Set min and max requirements!
+#' test_dataclass <-
+#'   dataclass(
+#'     num = num_vec(min_val = 1, max_val = 100)
+#'   )
+#'   
+#' # Value must be between 1 and 10 inclusive!
+#' test_dataclass(num = 10.03012)
 #' @export
 num_vec <- function(
     max_len = Inf,
@@ -278,7 +406,39 @@ num_vec <- function(
   }
 }
 
-#' @describeIn any_obj Validate a character vector
+#' Validator: Check if element is a character
+#' 
+#' This function is used to check whether something is a character. You can use
+#' this function to check the length and allowable values of character. You can
+#' also specify the level of a violation. If level is set to "warn" then invalid
+#' inputs will warn you. However, if level is set to "error" then invalid inputs
+#' will abort.
+#' 
+#' @param max_len The maximum length of a character element
+#' @param min_len The minimum length of a character element
+#' @param allowed A vector of allowable values
+#' @param level Setting "warn" throws a warning, setting "error" halts 
+#' @return
+#' A function with the following properties:
+#'
+#' * Checks whether something is a character vector
+#' * Determines whether the check will throw warning or error
+#' * Optionally checks for element length
+#' * Optionally checks for allowable values
+#' 
+#' @examples
+#' # Define a dataclass for testing characters:
+#' my_dataclass <-
+#'  dataclass(
+#'    string = chr_vec(allowed = c("this", "or", "that")),
+#'    other_string = chr_vec()
+#'  )
+#' 
+#' # `string` must be one of these: `c("this", "or", "that")`
+#' my_dataclass(
+#'   string = "this",
+#'   other_string = "I can be anything I want (as long as I am a string)"
+#' ) 
 #' @export
 chr_vec <- function(
     max_len = Inf,
@@ -322,7 +482,34 @@ chr_vec <- function(
   }
 }
 
-#' @describeIn any_obj Validate a logical vector
+#' Validator: Check if element is a logical
+#' 
+#' This function is used to check whether something is a logical. You can use
+#' this function to check the length of a logical vector. You can also specify
+#' the level of a violation. If level is set to "warn" then invalid inputs will
+#' warn you. However, if level is set to "error" then invalid inputs will abort.
+#' 
+#' @param max_len The maximum length of a logical element
+#' @param min_len The minimum length of a logical element
+#' @param level Setting "warn" throws a warning, setting "error" halts 
+#' @return
+#' A function with the following properties:
+#'
+#' * Checks whether something is a logical vector
+#' * Determines whether the check will throw warning or error
+#' * Optionally checks for element length
+#' 
+#' @examples
+#' # Define a dataclass for testing logicals:
+#' my_dataclass <-
+#'  dataclass(
+#'    bool = lgl_vec()
+#'  )
+#' 
+#' # `bool` must be a logical vector of any length!
+#' my_dataclass(
+#'   bool = TRUE
+#' ) 
 #' @export
 lgl_vec <- function(
     max_len = Inf,
@@ -346,10 +533,6 @@ lgl_vec <- function(
         length(x) >= min_len
       ))
     
-    if (!all(is.na(allowed))) {
-      result <- result && all(x %in% allowed)
-    }
-    
     list(
       result = result,
       level = level
@@ -357,8 +540,35 @@ lgl_vec <- function(
   }
 }
 
-#' @describeIn any_obj Ensure something is data like
-#' @export
+#' Validator: Check if element is a data like object
+#' 
+#' This function is used to check whether something is data like. You can use
+#' this function to check the data row count. You can also specify the level of
+#' a violation. If level is set to "warn" then invalid inputs will warn you.
+#' However, if level is set to "error" then invalid inputs will abort.
+#' 
+#' @param max_row The maximum row count of a data element
+#' @param min_row The minimum row count of a data element
+#' @param level Setting "warn" throws a warning, setting "error" halts 
+#' @return
+#' A function with the following properties:
+#'
+#' * Checks whether something is a data frame like object
+#' * Determines whether the check will throw warning or error
+#' * Optionally checks for row count
+#' 
+#' @examples
+#' # Define a dataclass for testing data:
+#' my_dataclass <-
+#'  dataclass(
+#'    df = df_like(100)
+#'  )
+#' 
+#' # `df` must be a data like object with at most 100 rows!
+#' my_dataclass(
+#'   df = mtcars
+#' )
+#' @export 
 df_like <- function(max_row = Inf, min_row = 1, level = "error") {
   
   # Check validator inputs
