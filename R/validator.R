@@ -1,83 +1,30 @@
 
-make_atomic_validator <- function(validator) {
-  # Generates atomic validator functions
-
-  function(
-    max_len = Inf,
-    min_len = 1,
-    max_val = Inf,
-    min_val = -Inf,
-    allowed = NA,
-    level = "error") {
-    # Function factory to generate validators
-    
-    # Check if level is error or warning
-    if (!(level %in% c("error", "warn"))) {
-      cli::cli_abort(c(
-        'Level must be "error" or "warn"!',
-        "i" = '`level = "error"` will halt if element is invalid',
-        "i" = '`level = "warn"` will throw a warning, but not halt'
-      ))
-    }
-    
-    # Check if dimension arguments are valid
-    dim_args <-
-      rlang::dots_list(
-        max_len,
-        min_len,
-        max_val,
-        min_val,
-        .named = TRUE
-      ) %>%
-      purrr::map_lgl(function(x) {
-        !rlang::is_atomic(x) || length(x) > 1 
-      })
-    
-    # Identify problematic inputs
-    prob_args <- names(dim_args[dim_args])
-    
-    if (length(prob_args) >= 1) {
-      cli::cli_abort(c(
-        "These elements are not single length atomic limits:",
-        purrr::set_names(prob_args, "x")
-      ))
-    }
-    
-    # Check allowable
-    if (!rlang::is_bare_atomic(allowed)) {
-      cli::cli_abort(c(
-        "x" = "`allowed` must be an atomic vector of allowable values",
-        "i" = 'You can also set `allowed` to NA to allow any values!'
-      ))
-    }
-    
-    function(x) {
-      # Generate validity information
-      
-      # Early return for non vectors
-      if (!rlang::is_atomic(x)) {
-        return(list(result = FALSE, level = level))
-      }
-
-      # Test validity
-      result <-
-        all(c(
-          validator(x),
-          length(x) <= max_len,
-          length(x) >= min_len,
-          any(x >= min_val),
-          any(x <= max_val)
-        ))
-      
-      # Optionally check for allowable values
-      if (!all(is.na(allowed))) {
-        
-        allowed_res <- all(x %in% allowed)
-        result <- allowed_res && result
-      }
-      
-      list(result = result, level = level)
-    }
+validator_input_check <- function(level, ...) {
+  
+  # Check if level is error or warning
+  if (!(level %in% c("error", "warn"))) {
+    cli::cli_abort(c(
+      'Level must be "error" or "warn"!',
+      "i" = '`level = "error"` will halt if element is invalid',
+      "i" = '`level = "warn"` will throw a warning, but not halt'
+    ))
+  }
+  
+  # Check if dimension arguments are valid
+  dim_args <-
+    list(...) %>%
+    purrr::map_lgl(function(x) {
+      !rlang::is_atomic(x) || length(x) > 1 
+    })
+  
+  # Identify problematic inputs
+  prob_args <- names(dim_args[dim_args])
+  
+  if (length(prob_args) >= 1) {
+    cli::cli_abort(c(
+      "These elements are not single length atomic limits:",
+      purrr::set_names(prob_args, "x")
+    ))
   }
 }
 
@@ -206,6 +153,10 @@ data_validator <- function(x, strict_cols = TRUE) {
 #' @param min_len The minimum length of a vector
 #' @param max_val The maximum value of a vector
 #' @param min_val The minimum value of a vector
+#' @param max_dte The maximum date of a vector
+#' @param min_dte The minimum date of a vector
+#' @param max_row The maximum row count of a data frame
+#' @param min_row The minimum row count of a data frame
 #' @param allowed Allowable values for a vector
 #' @param level   "warn" print a warning while "error" will halt upon violation
 #' @return
@@ -231,28 +182,201 @@ any_obj <- function() function(x) TRUE
 
 #' @describeIn any_obj Validate a vector
 #' @export
-atm_vec <- make_atomic_validator(rlang::is_atomic)
+atm_vec <- function(max_len = Inf, min_len = 1, level = "error") {
+  
+  # Check validator inputs
+  validator_input_check(level, max_len, min_len)
+  
+  function(x) {
+    
+    # Early return for non vectors
+    if (!rlang::is_atomic(x)) {
+      return(list(result = FALSE, level = level))
+    }
+    
+    list(
+      result = all(c(
+        length(x) <= max_len,
+        length(x) >= min_len
+      )),
+      level = level
+    )
+  }
+}
 
 #' @describeIn any_obj Validate a date vector
 #' @export
-dte_vec <- make_atomic_validator(function(x) {
-  inherits(x, "Date") || inherits(x, "POSIXct")
-})
+dte_vec <- function(max_len = Inf, min_len = 1, level = "error") {
+  
+  # Check validator inputs
+  validator_input_check(level, max_len, min_len)
+  
+  function(x) {
+    
+    # Early return for non vectors
+    if (!(inherits(x, "Date") || inherits(x, "POSIXct"))) {
+      return(list(result = FALSE, level = level))
+    }
+    
+    list(
+      result = all(c(
+        length(x) <= max_len,
+        length(x) >= min_len
+      )),
+      level = level
+    )
+  }
+}
 
 #' @describeIn any_obj Validate a numeric vector
 #' @export
-num_vec <- make_atomic_validator(rlang::is_bare_numeric)
+num_vec <- function(
+    max_len = Inf,
+    min_len = 1,
+    max_val = Inf,
+    min_val = -Inf,
+    allowed = NA,
+    level = "error"
+) {
+  
+  # Check validator inputs
+  validator_input_check(
+    level, max_len, min_len,
+    max_val, min_val
+  )
+  
+  if (!(rlang::is_bare_numeric(allowed) || all(is.na(allowed)))) {
+    cli::cli_abort(c(
+      "x" = "`allowed` must be an numeric vector of allowable values",
+      "i" = 'You can also set `allowed` to NA to allow any values!'
+    ))
+  }
+  
+  function(x) {
+    
+    # Early return for non vectors
+    if (!rlang::is_bare_numeric(x)) {
+      return(list(result = FALSE, level = level))
+    }
+    
+    result <-
+      all(c(
+        length(x) <= max_len,
+        length(x) >= min_len,
+        x <= max_val,
+        x >= min_val
+      ))
+    
+    if (!all(is.na(allowed))) {
+      result <- result && all(x %in% allowed)
+    }
+    
+    list(
+      result = result,
+      level = level
+    )
+  }
+}
 
 #' @describeIn any_obj Validate a character vector
 #' @export
-chr_vec <- make_atomic_validator(rlang::is_bare_character)
+chr_vec <- function(
+    max_len = Inf,
+    min_len = 1,
+    allowed = NA,
+    level = "error"
+) {
+  
+  # Check validator inputs
+  validator_input_check(level, max_len, min_len)
+  
+  # Validate allowed
+  if (!(rlang::is_bare_character(allowed) || all(is.na(allowed)))) {
+    cli::cli_abort(c(
+      "x" = "`allowed` must be an character vector of allowable values",
+      "i" = 'You can also set `allowed` to NA to allow any values!'
+    ))
+  }
+  
+  function(x) {
+    
+    # Early return for non vectors
+    if (!rlang::is_bare_character(x)) {
+      return(list(result = FALSE, level = level))
+    }
+    
+    result <-
+      all(c(
+        length(x) <= max_len,
+        length(x) >= min_len
+      ))
+    
+    if (!all(is.na(allowed))) {
+      result <- result && all(x %in% allowed)
+    }
+    
+    list(
+      result = result,
+      level = level
+    )
+  }
+}
 
 #' @describeIn any_obj Validate a logical vector
 #' @export
-lgl_vec <- make_atomic_validator(rlang::is_bare_logical)
+lgl_vec <- function(
+    max_len = Inf,
+    min_len = 1,
+    level = "error"
+) {
+  
+  # Check validator inputs
+  validator_input_check(level, max_len, min_len)
+  
+  function(x) {
+    
+    # Early return for non vectors
+    if (!rlang::is_bare_logical(x)) {
+      return(list(result = FALSE, level = level))
+    }
+    
+    result <-
+      all(c(
+        length(x) <= max_len,
+        length(x) >= min_len
+      ))
+    
+    if (!all(is.na(allowed))) {
+      result <- result && all(x %in% allowed)
+    }
+    
+    list(
+      result = result,
+      level = level
+    )
+  }
+}
 
 #' @describeIn any_obj Ensure something is data like
 #' @export
-df_like <- function() {
-  function(x) inherits(x, "data.frame")
+df_like <- function(max_row = Inf, min_row = 1, level = "error") {
+  
+  # Check validator inputs
+  validator_input_check(level, max_row, min_row)
+  
+  function(x) {
+    
+    # Early return for non vectors
+    if (!(inherits(x, "data.frame"))) {
+      return(list(result = FALSE, level = level))
+    }
+    
+    list(
+      result = all(c(
+        nrow(x) <= max_row,
+        nrow(x) >= min_row
+      )),
+      level = level
+    )
+  }
 }

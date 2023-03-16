@@ -102,9 +102,30 @@ dataclass <- function(...) {
   # Vanilla dataclass function
   new_dataclass <- function() {
 
-    # Assemble dataclass inputs and validators
-    inputs <- as.list(environment())
+    # Assemble dataclass inputs discarding unused arguments
+    inputs <-
+      environment() %>%
+      as.list() %>%
+      purrr::discard(rlang::is_symbol)
+    
+    # Assemble validators
     validators <- rlang::dots_list(..., .named = TRUE)
+    
+    # Missing args
+    missing_args <- setdiff(names(validators), names(inputs))
+    
+    # Throw error if arguments are missing
+    if (length(missing_args) >= 1) {
+      cli::cli_abort(c(
+        "The following arguments are missing!",
+        purrr::set_names(missing_args, "x"),
+        "i" = "Ensure all arguments are filled",
+        "i" = glue::glue(
+          "If you are validating a data frame, don't forget to pass your ",
+          "dataclass to data_validator() upon creation!"
+        )
+      ))
+    }
 
     # Determine input validity
     valid <-
