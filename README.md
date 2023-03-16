@@ -16,10 +16,10 @@ within an R process.
 
 ```r
 my_dataclass <- dataclass(
- min_date = dte_vec(1), # Ensures min_date is a date vector of length 1
- max_date = dte_vec(1), # Ensures max_date is a date vector of length 1
- run_data = df_like(),  # Ensures run_date is a data object (i.e. tibble)
- run_note = chr_vec(1)  # Ensures run_note is a character vector of length 1
+  min_date = dte_vec(1), # Ensures min_date is a date vector of length 1
+  max_date = dte_vec(1), # Ensures max_date is a date vector of length 1
+  run_data = df_like(),  # Ensures run_date is a data object (i.e. tibble)
+  run_note = chr_vec(1)  # Ensures run_note is a character vector of length 1
 )
 
 # This returns a validated list!
