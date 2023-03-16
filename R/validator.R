@@ -30,7 +30,7 @@ make_atomic_validator <- function(validator) {
         .named = TRUE
       ) %>%
       purrr::map_lgl(function(x) {
-        !rlang::is_bare_numeric(x) || length(x) > 1 
+        !rlang::is_atomic(x) || length(x) > 1 
       })
     
     # Identify problematic inputs
@@ -38,7 +38,7 @@ make_atomic_validator <- function(validator) {
     
     if (length(prob_args) >= 1) {
       cli::cli_abort(c(
-        "These elements are not single numbers:",
+        "These elements are not single length atomic limits:",
         purrr::set_names(prob_args, "x")
       ))
     }
