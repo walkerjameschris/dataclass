@@ -1,7 +1,6 @@
 # dataclass <img src='https://raw.githubusercontent.com/walkerjameschris/dataclass/main/logo.png' align="right" height="140" />
 
-[![CRAN status](https://www.r-pkg.org/badges/version/dataclass)]
-(https://cran.r-project.org/package=dataclass)
+[![CRAN status](https://www.r-pkg.org/badges/version/dataclass)](https://cran.r-project.org/package=dataclass)
 [![R build status](https://github.com/walkerjameschris/dataclass/workflows/R-CMD-check/badge.svg)](https://github.com/walkerjameschris/dataclass/actions?workflow=R-CMD-check)
 
 ## Easily Create Structured Lists or Data Frames with Input Validation
