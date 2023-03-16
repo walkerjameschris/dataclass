@@ -31,26 +31,26 @@ However, if level is set to "error" then invalid inputs will abort.
 \examples{
 # Define a dataclass for testing atomic:
 my_dataclass <-
- dataclass(
-   num_val = num_vec(),
-   # Setting warn means a warning will occur if violation is found
-   # The default is "error" which is stricter and will halt upon violation
-   atm_val = atm_vec(level = "warn") 
- )
+  dataclass(
+    num_val = num_vec(),
+    # Setting warn means a warning will occur if violation is found
+    # The default is "error" which is stricter and will halt upon violation
+    atm_val = atm_vec(level = "warn")
+  )
 
 # While `num_val` must be a number, `atm_val` can be any atomic element!
 my_dataclass(
   num_val = c(1, 2, 3),
   atm_val = Sys.Date()
-) 
+)
 
 my_dataclass(
   num_val = c(1, 2, 3),
   atm_val = c(TRUE, FALSE)
-) 
+)
 
 my_dataclass(
   num_val = c(1, 2, 3),
   atm_val = c("This is", "a character!")
-) 
+)
 }

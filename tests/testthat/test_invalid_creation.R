@@ -1,6 +1,4 @@
-
 testthat::test_that("Unnamed validators:", {
-  
   # Create dataclass without any named elements
   testthat::expect_error(
     dataclass::dataclass(
@@ -8,7 +6,7 @@ testthat::test_that("Unnamed validators:", {
       dataclass::df_like()
     )
   )
-  
+
   # Create dataclass with partially named elements
   testthat::expect_error(
     dataclass::dataclass(
@@ -21,7 +19,6 @@ testthat::test_that("Unnamed validators:", {
 })
 
 testthat::test_that("Non-function validators:", {
-  
   testthat::expect_error(
     dataclass::dataclass(
       nums = "This is NOT a function!",
@@ -32,7 +29,6 @@ testthat::test_that("Non-function validators:", {
 })
 
 testthat::test_that("Passing data into un-converted dataclass:", {
-  
   # dataclass not converted
   testthat::expect_error(
     dataclass::dataclass(

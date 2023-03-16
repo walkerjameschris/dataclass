@@ -29,9 +29,9 @@ However, if level is set to "error" then invalid inputs will abort.
 \examples{
 # Define a dataclass for testing data:
 my_dataclass <-
- dataclass(
-   df = df_like(100)
- )
+  dataclass(
+    df = df_like(100)
+  )
 
 # `df` must be a data like object with at most 100 rows!
 my_dataclass(

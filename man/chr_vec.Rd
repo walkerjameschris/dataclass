@@ -33,14 +33,14 @@ will abort.
 \examples{
 # Define a dataclass for testing characters:
 my_dataclass <-
- dataclass(
-   string = chr_vec(allowed = c("this", "or", "that")),
-   other_string = chr_vec()
- )
+  dataclass(
+    string = chr_vec(allowed = c("this", "or", "that")),
+    other_string = chr_vec()
+  )
 
 # `string` must be one of these: `c("this", "or", "that")`
 my_dataclass(
   string = "this",
   other_string = "I can be anything I want (as long as I am a string)"
-) 
+)
 }

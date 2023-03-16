@@ -29,26 +29,26 @@ However, if level is set to "error" then invalid inputs will abort.
 \examples{
 # Define a dataclass for testing dates:
 my_dataclass <-
- dataclass(
-   num_val = num_vec(),
-   # Setting warn means a warning will occur if violation is found
-   # The default is "error" which is stricter and will halt upon violation
-   dte_val = dte_vec(level = "warn") 
- )
+  dataclass(
+    num_val = num_vec(),
+    # Setting warn means a warning will occur if violation is found
+    # The default is "error" which is stricter and will halt upon violation
+    dte_val = dte_vec(level = "warn")
+  )
 
 # While `num_val` must be a number, `dte_val` must be a date!
 my_dataclass(
   num_val = c(1, 2, 3),
   dte_val = Sys.Date()
-) 
+)
 
 my_dataclass(
   num_val = c(1, 2, 3),
   dte_val = as.Date("2022-01-01")
-) 
+)
 
 my_dataclass(
   num_val = c(1, 2, 3),
   dte_val = as.Date(c("2022-01-01", "2023-01-01"))
-) 
+)
 }

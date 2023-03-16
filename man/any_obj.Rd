@@ -26,21 +26,21 @@ dataclass.
 \examples{
 # Define a dataclass:
 my_dataclass <-
- dataclass(
-   date_val = dte_vec(),
-   anything = any_obj()
- )
+  dataclass(
+    date_val = dte_vec(),
+    anything = any_obj()
+  )
 
 # While `date_val` must be a date, `anything` can be any value!
 my_dataclass(
   date_val = as.Date("2022-01-01"),
   anything = lm(vs ~ am, mtcars)
-) 
+)
 
 my_dataclass(
   date_val = as.Date("2022-01-01"),
   anything = c(1, 2, 3, 4, 5)
-) 
+)
 
 my_dataclass(
   date_val = as.Date("2022-01-01"),
