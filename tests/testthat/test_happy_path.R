@@ -15,7 +15,7 @@ test_list_class <- dataclass::dataclass(
   lgl_et_1 = dataclass::lgl_vec(1, level = sample(c("warn", "error"), 1)),
   lgl_gt_1 = dataclass::lgl_vec(Inf, 2, level = sample(c("warn", "error"), 1)),
   dfl_objt = dataclass::df_like(level = sample(c("warn", "error"), 1)),
-  any_objt = dataclass::any_obj() 
+  any_objt = dataclass::any_obj()
 )
 
 test_list_out <- list(
@@ -68,7 +68,6 @@ test_df_out <- as.data.frame(test_tibble_out)
 test_dt_out <- data.table::as.data.table(test_tibble_out)
 
 testthat::test_that("Happy path dataclass() for list", {
-  
   # Test list formats
   testthat::expect_identical(
     do.call(test_list_class, test_list_out),
@@ -77,27 +76,26 @@ testthat::test_that("Happy path dataclass() for list", {
 })
 
 testthat::test_that("Happy path dataclass() for rectangular data", {
-  
   # Test tibble format
   testthat::expect_identical(
     test_df_class(test_tibble_out),
     test_tibble_out
   )
-  
+
   # Test data frame format
   testthat::expect_identical(
     test_df_class(test_df_out) |>
       as.data.frame(),
     test_df_out
   )
-  
+
   # Test data table format
   testthat::expect_identical(
     test_df_class(test_dt_out) |>
       data.table::as.data.table(),
     test_dt_out
   )
-  
+
   # Bypass column checks
   testthat::expect_identical(
     test_df_class_bypass(test_tibble_out),

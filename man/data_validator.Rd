@@ -22,25 +22,25 @@ A function with the following properties:
 }
 \description{
 If you intend to use your dataclass to validate data frame like object such
-as tibbles, data frames, or data tables, pass the dataclass into this 
+as tibbles, data frames, or data tables, pass the dataclass into this
 function to modify behavior.
 }
 \examples{
 # Define a dataclass for creating data! Pass to data_validator():
 my_df_dataclass <-
- dataclass(
-   dte_col = dte_vec(),
-   chr_col = chr_vec(),
-   # Custom column validator ensures values are positive!
-   new_col = function(x) all(x > 0)
- ) |>
- data_validator()
+  dataclass(
+    dte_col = dte_vec(),
+    chr_col = chr_vec(),
+    # Custom column validator ensures values are positive!
+    new_col = function(x) all(x > 0)
+  ) |>
+  data_validator()
 
 # Validate a data frame or data frame like objects!
 data.frame(
- dte_col = as.Date("2022-01-01"),
- chr_col = "String!",
- new_col = 100
+  dte_col = as.Date("2022-01-01"),
+  chr_col = "String!",
+  new_col = 100
 ) |>
   my_df_dataclass()
 
@@ -50,7 +50,7 @@ test_df_class <-
     dte_col = dte_vec()
   ) |>
   data_validator(strict_cols = FALSE)
- 
+
 tibble::tibble(
   dte_col = as.Date("2022-01-01"),
   other_col = "a"

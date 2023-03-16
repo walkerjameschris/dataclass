@@ -45,19 +45,19 @@ will abort.
 \examples{
 # Define a dataclass for testing numbers:
 my_dataclass <-
- dataclass(
-   dte_val = dte_vec(),
-   # Setting warn means a warning will occur if violation is found
-   # The default is "error" which is stricter and will halt upon violation
-   # We also set allowed to 0 and 1 which means elements must be 0 or 1
-   num_val = num_vec(level = "warn", allowed = c(0, 1)) 
- )
+  dataclass(
+    dte_val = dte_vec(),
+    # Setting warn means a warning will occur if violation is found
+    # The default is "error" which is stricter and will halt upon violation
+    # We also set allowed to 0 and 1 which means elements must be 0 or 1
+    num_val = num_vec(level = "warn", allowed = c(0, 1))
+  )
 
 # While `dte_val` must be a date, `num_val` must be 0 or 1!
 my_dataclass(
   dte_val = Sys.Date(),
   num_val = c(0, 1, 1, 0, 1)
-) 
+)
 
 my_dataclass(
   dte_val = Sys.Date(),
@@ -69,7 +69,7 @@ test_dataclass <-
   dataclass(
     num = num_vec(min_val = 1, max_val = 100)
   )
-  
+
 # Value must be between 1 and 10 inclusive!
 test_dataclass(num = 10.03012)
 }

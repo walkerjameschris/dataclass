@@ -29,12 +29,12 @@ warn you. However, if level is set to "error" then invalid inputs will abort.
 \examples{
 # Define a dataclass for testing logicals:
 my_dataclass <-
- dataclass(
-   bool = lgl_vec()
- )
+  dataclass(
+    bool = lgl_vec()
+  )
 
 # `bool` must be a logical vector of any length!
 my_dataclass(
   bool = TRUE
-) 
+)
 }
