@@ -1,7 +1,7 @@
 Package: dataclass
 Type: Package
 Title: Easily Create Structured Lists or Data Frames with Input Validation
-Version: 0.1.10
+Version: 0.1.11
 Authors@R: c(person(
             "Chris", "Walker",
             role = c("aut", "cre", "cph"),

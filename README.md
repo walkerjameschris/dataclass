@@ -1,4 +1,4 @@
-# dataclass <img src='https://raw.githubusercontent.com/walkerjameschris/dataclass/main/logo.png' align="right" height="140" />
+# dataclass <img src='https://chrisjameswalker.com/wp-content/uploads/2023/03/logo.png' align="right" height="140" />
 
 [![CRAN status](https://www.r-pkg.org/badges/version/dataclass)](https://cran.r-project.org/package=dataclass)
 [![R build status](https://github.com/walkerjameschris/dataclass/workflows/R-CMD-check/badge.svg)](https://github.com/walkerjameschris/dataclass/actions?workflow=R-CMD-check)
@@ -16,10 +16,10 @@ within an R process.
 
 ```r
 my_dataclass <- dataclass(
- min_date = dte_vec(1), # Ensures min_date is a date vector of length 1
- max_date = dte_vec(1), # Ensures max_date is a date vector of length 1
- run_data = df_like(),  # Ensures run_date is a data object (i.e. tibble)
- run_note = chr_vec(1)  # Ensures run_note is a character vector of length 1
+  min_date = dte_vec(1), # Ensures min_date is a date vector of length 1
+  max_date = dte_vec(1), # Ensures max_date is a date vector of length 1
+  run_data = df_like(),  # Ensures run_date is a data object (i.e. tibble)
+  run_note = chr_vec(1)  # Ensures run_note is a character vector of length 1
 )
 
 # This returns a validated list!
