@@ -32,25 +32,27 @@ my_dataclass(
 
 # An example with anonymous functions
 a_new_dataclass <-
- dataclass(
+  dataclass(
    start_date = dte_vec(1),
    # Ensures calculation is a column in this data and is data like
    results_df = function(x) "calculation" %in% names(x) && df_like(x)
- )
+  )
 
 # Define a dataclass for creating data! Wrap in data_validator():
 my_df_dataclass <-
-data_validator(dataclass(
-  dte_col = dte_vec(),
-  chr_col = chr_vec(),
-  # Custom column validator ensures values are positive!
-  new_col = function(x) all(x > 0)
-))
+  dataclass(
+    dte_col = dte_vec(),
+    chr_col = chr_vec(),
+    # Custom column validator ensures values are positive!
+    new_col = function(x) all(x > 0)
+  ) |>
+  data_validator()
 
 # Validate a data frame or data frame like objects!
-my_df_dataclass(data.frame(
+data.frame(
   dte_col = as.Date("2022-01-01"),
   chr_col = "String!",
   new_col = 100
-))
+) |>
+  my_df_dataclass()
 ```

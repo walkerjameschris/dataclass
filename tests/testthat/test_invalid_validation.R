@@ -21,6 +21,27 @@ testthat::test_that("Invalid date input:", {
       dt = as.Date(c("2022-01-01", "2023-01-01"))
     )
   )
+  
+  # Date input is not date
+  testthat::expect_warning(
+    dataclass::dataclass(dt = dataclass::dte_vec(level = "warn"))(
+      dt = "Not a date!"
+    )
+  )
+  
+  # Date input too long
+  testthat::expect_warning(
+    dataclass::dataclass(dt = dataclass::dte_vec(1, level = "warn"))(
+      dt = as.Date(c("2022-01-01", "2023-01-01"))
+    )
+  )
+  
+  # Date input too short
+  testthat::expect_warning(
+    dataclass::dataclass(dt = dataclass::dte_vec(Inf, 3, level = "warn"))(
+      dt = as.Date(c("2022-01-01", "2023-01-01"))
+    )
+  )
 })
 
 testthat::test_that("Invalid atomic input:", {
@@ -42,6 +63,27 @@ testthat::test_that("Invalid atomic input:", {
   # Atomic input too short
   testthat::expect_error(
     dataclass::dataclass(atm = dataclass::atm_vec(Inf, 3))(
+      atm = c("too", "short")
+    )
+  )
+  
+  # Atomic input is not atomic
+  testthat::expect_warning(
+    dataclass::dataclass(atm = dataclass::atm_vec(level = "warn"))(
+      atm = list("Not atomic!")
+    )
+  )
+  
+  # Atomic input too long
+  testthat::expect_warning(
+    dataclass::dataclass(atm = dataclass::atm_vec(1, level = "warn"))(
+      atm = c(1, 2, 3, 4)
+    )
+  )
+  
+  # Atomic input too short
+  testthat::expect_warning(
+    dataclass::dataclass(atm = dataclass::atm_vec(Inf, 3, level = "warn"))(
       atm = c("too", "short")
     )
   )
@@ -69,6 +111,27 @@ testthat::test_that("Invalid numeric input:", {
       num = c(1, 2)
     )
   )
+  
+  # Numeric input is not numeric
+  testthat::expect_warning(
+    dataclass::dataclass(num = dataclass::num_vec(level = "warn"))(
+      num = "Not numeric!"
+    )
+  )
+  
+  # Numeric input too long
+  testthat::expect_warning(
+    dataclass::dataclass(num = dataclass::num_vec(1, level = "warn"))(
+      num = c(1, 2, 3, 4)
+    )
+  )
+  
+  # Numeric input too short
+  testthat::expect_warning(
+    dataclass::dataclass(num = dataclass::num_vec(Inf, 3, level = "warn"))(
+      num = c(1, 2)
+    )
+  )
 })
 
 testthat::test_that("Invalid logical input:", {
@@ -93,52 +156,49 @@ testthat::test_that("Invalid logical input:", {
       lgl = c(FALSE, FALSE)
     )
   )
-})
-
-testthat::test_that("Invalid factor input:", {
   
   # Logical input is not logical
-  testthat::expect_error(
-    dataclass::dataclass(lgl = dataclass::lgl_vec())(
+  testthat::expect_warning(
+    dataclass::dataclass(lgl = dataclass::lgl_vec(level = "warn"))(
       lgl = "Not logical!"
     )
   )
   
   # Logical input too long
-  testthat::expect_error(
-    dataclass::dataclass(lgl = dataclass::lgl_vec(1))(
-      lgl = factor(c(1, 1, 2, 3))
+  testthat::expect_warning(
+    dataclass::dataclass(lgl = dataclass::lgl_vec(1, level = "warn"))(
+      lgl = c(TRUE, FALSE, TRUE, TRUE)
     )
   )
   
   # Logical input too short
-  testthat::expect_error(
-    dataclass::dataclass(lgl = dataclass::lgl_vec(Inf, 3))(
-      lgl = factor(c(1, 3))
+  testthat::expect_warning(
+    dataclass::dataclass(lgl = dataclass::lgl_vec(Inf, 3, level = "warn"))(
+      lgl = c(FALSE, FALSE)
     )
   )
 })
 
 testthat::test_that("Invalid data input:", {
   
-  # Data input is not data like
+  # Data incorrect types
   testthat::expect_error(
     dataclass::dataclass(dfl = dataclass::df_like())(
       dfl = "Not a data frame like object!"
     )
   )
   
-  # Data input too many rows
+  # Data incorrect types
   testthat::expect_error(
-    dataclass::dataclass(dfl = dataclass::df_like(1))(
-      dfl = mtcars
+    dataclass::dataclass(dfl = dataclass::df_like())(
+      dfl = list(a = 1, b = 2)
     )
   )
   
-  # Data input too few rows
+  # Data incorrect types
   testthat::expect_error(
-    dataclass::dataclass(dfl = dataclass::df_like(Inf, 3))(
-      dfl = data.frame(col = 1)
+    dataclass::dataclass(dfl = dataclass::df_like())(
+      dfl = c("a" = 1, "b" = 2)
     )
   )
 })
@@ -172,3 +232,4 @@ testthat::test_that("Passing unknown columns into dataclass:", {
   # Unknown columns
   testthat::expect_error(test_class(test_df))
 })
+

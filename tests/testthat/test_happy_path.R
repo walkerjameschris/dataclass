@@ -11,12 +11,7 @@ test_list_class <- dataclass::dataclass(
   lgl_anyl = dataclass::lgl_vec(),
   lgl_et_1 = dataclass::lgl_vec(1),
   lgl_gt_1 = dataclass::lgl_vec(Inf, 2),
-  fct_anyl = dataclass::fct_vec(),
-  fct_et_1 = dataclass::fct_vec(1),
-  fct_gt_1 = dataclass::fct_vec(Inf, 2),
-  dfl_anyl = dataclass::df_like(),
-  dfl_et_1 = dataclass::df_like(1),
-  dfl_gt_1 = dataclass::df_like(Inf, 2),
+  dfl_objt = dataclass::df_like(),
   any_objt = dataclass::any_obj() 
 )
 
@@ -33,12 +28,7 @@ test_list_out <- list(
   lgl_anyl = rep(TRUE, sample.int(100, 1)),
   lgl_et_1 = FALSE,
   lgl_gt_1 = (seq(10) %% 2) == 1,
-  fct_anyl = factor(sample.int(100)),
-  fct_et_1 = factor(FALSE),
-  fct_gt_1 = factor(c("a", "b", "c")),
-  dfl_anyl = tibble::tibble(col = rep(1, sample.int(100, 1))),
-  dfl_et_1 = data.frame(col = "a"),
-  dfl_gt_1 = data.table::data.table(col_1 = c(1, 2), col_2 = c("a", "b")),
+  dfl_objt = tibble::tibble(col = rep(1, sample.int(100, 1))),
   any_objt = list(mtcars, lm(vs ~ am, mtcars), list(x = sample.int(10)))
 )
 
@@ -47,17 +37,23 @@ test_df_class <-
     dte_col = dataclass::dte_vec(),
     atm_col = dataclass::atm_vec(),
     num_col = dataclass::num_vec(),
-    lgl_col = dataclass::lgl_vec(),
-    fct_col = dataclass::fct_vec()
+    lgl_col = dataclass::lgl_vec()
   ) |>
   dataclass::data_validator()
+
+test_df_class_bypass <-
+  dataclass::dataclass(
+    dte_col = dataclass::dte_vec()
+  ) |>
+  dataclass::data_validator(
+    strict_cols = FALSE
+  )
 
 test_tibble_out <- tibble::tibble(
   dte_col = as.Date(c("2022-01-01", "2023-01-01")),
   atm_col = c(1, 2),
   num_col = c(1.02, 2.32),
-  lgl_col = c(TRUE, FALSE),
-  fct_col = factor(c(1, 2))
+  lgl_col = c(TRUE, FALSE)
 )
 
 test_df_out <- as.data.frame(test_tibble_out)
@@ -92,5 +88,11 @@ testthat::test_that("Happy path dataclass() for rectangular data", {
     test_df_class(test_dt_out) |>
       data.table::as.data.table(),
     test_dt_out
+  )
+  
+  # Bypass column checks
+  testthat::expect_identical(
+    test_df_class_bypass(test_tibble_out),
+    test_tibble_out
   )
 })

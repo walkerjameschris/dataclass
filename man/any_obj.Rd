@@ -7,30 +7,70 @@
 \alias{num_vec}
 \alias{chr_vec}
 \alias{lgl_vec}
-\alias{fct_vec}
 \alias{df_like}
-\title{Validate dataclass inputs}
+\title{Validate atomic vectors with dataclass}
 \usage{
 any_obj()
 
-atm_vec(max_l = Inf, min_l = 1)
+atm_vec(
+  max_len = Inf,
+  min_len = 1,
+  max_val = Inf,
+  min_val = -Inf,
+  allowed = NA,
+  level = "error"
+)
 
-dte_vec(max_l = Inf, min_l = 1)
+dte_vec(
+  max_len = Inf,
+  min_len = 1,
+  max_val = Inf,
+  min_val = -Inf,
+  allowed = NA,
+  level = "error"
+)
 
-num_vec(max_l = Inf, min_l = 1)
+num_vec(
+  max_len = Inf,
+  min_len = 1,
+  max_val = Inf,
+  min_val = -Inf,
+  allowed = NA,
+  level = "error"
+)
 
-chr_vec(max_l = Inf, min_l = 1)
+chr_vec(
+  max_len = Inf,
+  min_len = 1,
+  max_val = Inf,
+  min_val = -Inf,
+  allowed = NA,
+  level = "error"
+)
 
-lgl_vec(max_l = Inf, min_l = 1)
+lgl_vec(
+  max_len = Inf,
+  min_len = 1,
+  max_val = Inf,
+  min_val = -Inf,
+  allowed = NA,
+  level = "error"
+)
 
-fct_vec(max_l = Inf, min_l = 1)
-
-df_like(max_l = Inf, min_l = 1)
+df_like()
 }
 \arguments{
-\item{max_l}{The maximum length (or row count for data frames) of an object}
+\item{max_len}{The maximum length of a vector}
 
-\item{min_l}{The minimum length (or row count for data frames) of an object}
+\item{min_len}{The minimum length of a vector}
+
+\item{max_val}{The maximum value of a vector}
+
+\item{min_val}{The minimum value of a vector}
+
+\item{allowed}{Allowable values for a vector}
+
+\item{level}{"warn" print a warning while "error" will halt upon violation}
 }
 \value{
 A function with the following properties:
@@ -43,12 +83,18 @@ A function with the following properties:
 These are utility functions which can be used to validate dataclass inputs.
 All of these functions follow the same basic structure. If no arguments are
 provided they will be passed as basic type validators. However, you can
-specify a max and min length (or rowcount in the case of df_like()). We put
-max as the first argument because we are typically concerned with the max
-amount of values more than the minimum. For example, dte_vec(1) ensures a
-date vector of length one is returned (in other words a single date).
+specify a max and min length. We put max as the first argument because we are
+typically concerned with the max amount of values more than the minimum. For
+example, dte_vec(1) ensures a date vector of length one is returned (in other
+words a single date). Alternatively, dte_vec(10, 5) allows between 5 and 10
+elements in the vector.
 }
 \details{
+You can also specify max and min values in addition to a vector of allowable
+values. Finally, you can set the level of the validator. Setting
+`level = "warn"` will warn you if a violation occurs whereas
+`level = "error"` will halt upon violation.
+
 This function will return a new function with named argument for each of the
 elements you define here. If you want to define more customized behavior you
 can create your own validator functions and insert them as arguments during
@@ -66,18 +112,18 @@ dataclass creation.
 
 \item \code{lgl_vec()}: Validate a logical vector
 
-\item \code{fct_vec()}: Validate a factor vector
-
-\item \code{df_like()}: Validate a data like object
+\item \code{df_like()}: Ensure something is data like
 
 }}
 \examples{
-atm_vec(1, 10)   # An atomic vector of any type between 1 and 10 elements
-dte_vec(1)       # A single date
-num_vec()        # A numeric vector of any length
-chr_vec(1)       # A single string
-lgl_vec(5, 10)   # A logical vector between 5 and 10 elements in length
-fct_vec(100)     # A factor vector with at most 100 elements
-df_like(Inf, 50) # A data object with at least 50 rows
-any_obj()        # Allows any object without validation (can be dangerous!)
+dte_vec(1) # A single date
+num_vec()  # A numeric vector of any length
+chr_vec(1) # A single string
+lgl_vec(5) # A logical vector with at most 5 elements
+atm_vec(4, 1) # An atomic vector of any type between 1 and 4 elements
+num_vec(min_val = 0) # A numeric vector where all elements are positive
+chr_vec(allowed = c("a", "b")) # Character vector only allowing "a" and "b"
+dte_vec(level = "warn") # Date vector which warns if non-date is provided
+any_obj() # Allows any object without validation (can be dangerous!)
+df_like() # Tests if something is data frame like
 }
