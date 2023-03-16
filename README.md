@@ -12,7 +12,6 @@ variant of the S7 standard aimed at standardizing structured data generation
 within an R process.
 
 ```r
-# Create a dataclass
 my_dataclass <- dataclass(
   min_date = dte_vec(1), # Ensures min_date is a date vector of length 1
   max_date = dte_vec(1), # Ensures max_date is a date vector of length 1
@@ -24,41 +23,31 @@ my_dataclass <- dataclass(
 my_dataclass(
   min_date = as.Date("2022-01-01"),
   max_date = as.Date("2023-01-01"),
-  run_data = head(mtcars),
+  run_data = head(mtcars, 2),
   run_note = "A note!"
 )
 
-# This throws an error since run_data is not a data frame
-my_dataclass(
-  min_date = as.Date("2022-01-01"),
-  max_date = as.Date("2023-01-01"),
-  run_data = c(1, 2, 3),
-  run_note = "A note!"
-)
-
-# Create a dataclass with anonymous functions
-dataclass(
-  start_date = dte_vec(1),
-  # Ensures calculation is a column in this data and is data like
-  results_df = function(x) "calculation" %in% names(x) && df_like(x)
-)
-
-# Define a dataclass for creating a tibble! Simply omit length restrictions:
-my_df_dataclass <-
+# An example with anonymous functions
+a_new_dataclass <-
  dataclass(
-   dte_col = dte_vec(),
-   chr_col = chr_vec(),
-   # Custom column validator which ensures column is numeric and postitive!
-   new_col = function(x) num_vec(x) && all(x > 0)
- ) %>%
- # You MUST convert to a data validator for use with data frames
- data_validator()
+   start_date = dte_vec(1),
+   # Ensures calculation is a column in this data and is data like
+   results_df = function(x) "calculation" %in% names(x) && df_like(x)
+ )
 
-# Validate a tibble!
-tibble(
- dte_col = as.Date("2022-01-01"),
- chr_col = "String!",
- new_col = 100
-) %>%
- my_df_dataclass()
+# Define a dataclass for creating data! Wrap in data_validator():
+my_df_dataclass <-
+data_validator(dataclass(
+  dte_col = dte_vec(),
+  chr_col = chr_vec(),
+  # Custom column validator ensures values are positive!
+  new_col = function(x) all(x > 0)
+))
+
+# Validate a data frame or data frame like objects!
+my_df_dataclass(data.frame(
+  dte_col = as.Date("2022-01-01"),
+  chr_col = "String!",
+  new_col = 100
+))
 ```
