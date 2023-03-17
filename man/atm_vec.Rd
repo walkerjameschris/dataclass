@@ -4,7 +4,13 @@
 \alias{atm_vec}
 \title{Validator: Check if element is atomic}
 \usage{
-atm_vec(max_len = Inf, min_len = 1, level = "error", allow_na = FALSE)
+atm_vec(
+  max_len = Inf,
+  min_len = 1,
+  level = "error",
+  allow_na = FALSE,
+  allow_dups = TRUE
+)
 }
 \arguments{
 \item{max_len}{The maximum length of an atomic element}
@@ -14,6 +20,8 @@ atm_vec(max_len = Inf, min_len = 1, level = "error", allow_na = FALSE)
 \item{level}{Setting "warn" throws a warning, setting "error" halts}
 
 \item{allow_na}{Should NA values be allowed?}
+
+\item{allow_dups}{Should duplicates be allowed?}
 }
 \value{
 A function with the following properties:

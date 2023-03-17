@@ -1,16 +1,20 @@
 test_list_class <- dataclass::dataclass(
+  dte_dups = dataclass::dte_vec(allow_dups = TRUE),
   dte_navl = dataclass::dte_vec(allow_na = TRUE),
   dte_anyl = dataclass::dte_vec(level = sample(c("warn", "error"), 1)),
   dte_et_1 = dataclass::dte_vec(1, level = sample(c("warn", "error"), 1)),
   dte_gt_1 = dataclass::dte_vec(Inf, 2, level = sample(c("warn", "error"), 1)),
+  atm_dups = dataclass::atm_vec(allow_dups = TRUE),
   atm_navl = dataclass::atm_vec(allow_na = TRUE),
   atm_anyl = dataclass::atm_vec(level = sample(c("warn", "error"), 1)),
   atm_et_1 = dataclass::atm_vec(1, level = sample(c("warn", "error"), 1)),
   atm_gt_1 = dataclass::atm_vec(Inf, 2, level = sample(c("warn", "error"), 1)),
+  num_dups = dataclass::num_vec(allow_dups = TRUE),
   num_navl = dataclass::num_vec(allow_na = TRUE),
   num_anyl = dataclass::num_vec(level = sample(c("warn", "error"), 1)),
   num_et_1 = dataclass::num_vec(1, level = sample(c("warn", "error"), 1)),
   num_gt_1 = dataclass::num_vec(Inf, 2, level = sample(c("warn", "error"), 1)),
+  chr_dups = dataclass::chr_vec(allow_dups = TRUE),
   chr_navl = dataclass::chr_vec(allow_na = TRUE),
   chr_anyl = dataclass::chr_vec(level = sample(c("warn", "error"), 1)),
   chr_et_1 = dataclass::chr_vec(1, level = sample(c("warn", "error"), 1)),
@@ -20,22 +24,27 @@ test_list_class <- dataclass::dataclass(
   lgl_et_1 = dataclass::lgl_vec(1, level = sample(c("warn", "error"), 1)),
   lgl_gt_1 = dataclass::lgl_vec(Inf, 2, level = sample(c("warn", "error"), 1)),
   dfl_objt = dataclass::df_like(level = sample(c("warn", "error"), 1)),
-  any_objt = dataclass::any_obj()
+  any_objt = dataclass::any_obj(),
+  user_def = function(x) all(x > 100)
 )
 
 test_list_out <- list(
+  dte_dups = rep(Sys.Date(), 2),
   dte_navl = as.Date(c(NA, "2022-01-01")),
   dte_anyl = rep(as.Date("2022-01-01"), sample.int(100, 1)),
   dte_et_1 = as.Date("2022-01-01"),
   dte_gt_1 = as.Date(c("2022-01-01", "2023-01-01")),
+  atm_dups = c(1, 1),
   atm_navl = as.Date(c(NA, "2022-01-01")),
   atm_anyl = rep(TRUE, sample.int(100, 1)),
   atm_et_1 = "A note!",
   atm_gt_1 = c(1, 2, 3, 4, 5),
+  num_dups = c(1, 1),
   num_navl = c(1, NA),
   num_anyl = rep(1, sample.int(100, 1)),
   num_et_1 = 3.14159,
   num_gt_1 = seq(0, 10, 0.1),
+  chr_dups = rep("c", 2),
   chr_navl = c("c", NA),
   chr_anyl = rep("c", sample.int(100, 1)),
   chr_et_1 = "chhsdc has xhdapdksmcpe",
@@ -45,7 +54,8 @@ test_list_out <- list(
   lgl_et_1 = FALSE,
   lgl_gt_1 = (seq(10) %% 2) == 1,
   dfl_objt = tibble::tibble(col = rep(1, sample.int(100, 1))),
-  any_objt = list(mtcars, lm(vs ~ am, mtcars), list(x = sample.int(10)))
+  any_objt = list(mtcars, lm(vs ~ am, mtcars), list(x = sample.int(10))),
+  user_def = sample.int(100, 1) * 1000
 )
 
 test_df_class <-

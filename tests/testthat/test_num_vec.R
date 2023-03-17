@@ -1,4 +1,11 @@
 testthat::test_that("Invalid numeric input:", {
+  # Un-handled duplicates
+  testthat::expect_error(
+    dataclass::dataclass(num = dataclass::num_vec(allow_dups = FALSE))(
+      num = rep(sample.int(1000, 1), 2)
+    )
+  )
+  
   # Un-handled NAs
   testthat::expect_error(
     dataclass::dataclass(num = dataclass::dte_vec())(
