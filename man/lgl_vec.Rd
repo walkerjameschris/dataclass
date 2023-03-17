@@ -4,7 +4,7 @@
 \alias{lgl_vec}
 \title{Validator: Check if element is a logical}
 \usage{
-lgl_vec(max_len = Inf, min_len = 1, level = "error")
+lgl_vec(max_len = Inf, min_len = 1, level = "error", allow_na = FALSE)
 }
 \arguments{
 \item{max_len}{The maximum length of a logical element}
@@ -12,6 +12,8 @@ lgl_vec(max_len = Inf, min_len = 1, level = "error")
 \item{min_len}{The minimum length of a logical element}
 
 \item{level}{Setting "warn" throws a warning, setting "error" halts}
+
+\item{allow_na}{Should NA values be allowed?}
 }
 \value{
 A function with the following properties:

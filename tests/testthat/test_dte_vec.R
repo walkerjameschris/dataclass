@@ -1,4 +1,11 @@
 testthat::test_that("Invalid date input:", {
+  # Un-handled NAs
+  testthat::expect_error(
+    dataclass::dataclass(dt = dataclass::dte_vec())(
+      dt = c(Sys.Date(), NA)
+    )
+  )
+  
   # Date input is not date
   testthat::expect_error(
     dataclass::dataclass(dt = dataclass::dte_vec())(

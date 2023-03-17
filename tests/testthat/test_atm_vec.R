@@ -1,4 +1,11 @@
 testthat::test_that("Invalid atomic input:", {
+  # Un-handled NAs
+  testthat::expect_error(
+    dataclass::dataclass(atm = dataclass::atm_vec())(
+      atm = c("too", NA)
+    )
+  )
+  
   # Atomic input is not atomic
   testthat::expect_error(
     dataclass::dataclass(atm = dataclass::atm_vec())(
