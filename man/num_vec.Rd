@@ -11,7 +11,8 @@ num_vec(
   min_val = -Inf,
   allowed = NA,
   level = "error",
-  allow_na = FALSE
+  allow_na = FALSE,
+  allow_dups = TRUE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ num_vec(
 \item{level}{Setting "warn" throws a warning, setting "error" halts}
 
 \item{allow_na}{Should NA values be allowed?}
+
+\item{allow_dups}{Should duplicates be allowed?}
 }
 \value{
 A function with the following properties:

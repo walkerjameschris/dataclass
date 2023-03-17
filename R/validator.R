@@ -181,6 +181,7 @@ any_obj <- function() function(x) TRUE
 #' @param min_len The minimum length of an atomic element
 #' @param level Setting "warn" throws a warning, setting "error" halts
 #' @param allow_na Should NA values be allowed?
+#' @param allow_dups Should duplicates be allowed?
 #' @return
 #' A function with the following properties:
 #'
@@ -218,7 +219,8 @@ atm_vec <- function(
     max_len = Inf,
     min_len = 1,
     level = "error",
-    allow_na = FALSE) {
+    allow_na = FALSE,
+    allow_dups = TRUE) {
   # Check validator inputs
   validator_input_check(level, max_len, min_len)
 
@@ -234,6 +236,12 @@ atm_vec <- function(
     
     if (!allow_na && any(is.na(x))) {
       return(list(result = FALSE, level = level))
+    }
+    
+    if (!allow_dups) {
+      if (length(unique(x)) != length(x)) {
+        return(list(result = FALSE, level = level))
+      }
     }
 
     list(
@@ -257,6 +265,7 @@ atm_vec <- function(
 #' @param min_len The minimum length of a date element
 #' @param level Setting "warn" throws a warning, setting "error" halts
 #' @param allow_na Should NA values be allowed?
+#' @param allow_dups Should duplicates be allowed?
 #' @return
 #' A function with the following properties:
 #'
@@ -294,7 +303,8 @@ dte_vec <- function(
     max_len = Inf,
     min_len = 1,
     level = "error",
-    allow_na = FALSE) {
+    allow_na = FALSE,
+    allow_dups = TRUE) {
   # Check validator inputs
   validator_input_check(level, max_len, min_len)
 
@@ -310,6 +320,12 @@ dte_vec <- function(
     
     if (!allow_na && any(is.na(x))) {
       return(list(result = FALSE, level = level))
+    }
+    
+    if (!allow_dups) {
+      if (length(unique(x)) != length(x)) {
+        return(list(result = FALSE, level = level))
+      }
     }
 
     list(
@@ -337,6 +353,7 @@ dte_vec <- function(
 #' @param allowed A vector of allowable values
 #' @param level Setting "warn" throws a warning, setting "error" halts
 #' @param allow_na Should NA values be allowed?
+#' @param allow_dups Should duplicates be allowed?
 #' @return
 #' A function with the following properties:
 #'
@@ -384,7 +401,8 @@ num_vec <- function(
     min_val = -Inf,
     allowed = NA,
     level = "error",
-    allow_na = FALSE) {
+    allow_na = FALSE,
+    allow_dups = TRUE) {
   # Check validator inputs
   validator_input_check(
     level, max_len, min_len,
@@ -410,6 +428,12 @@ num_vec <- function(
     
     if (!allow_na && any(is.na(x))) {
       return(list(result = FALSE, level = level))
+    }
+    
+    if (!allow_dups) {
+      if (length(unique(x)) != length(x)) {
+        return(list(result = FALSE, level = level))
+      }
     }
 
     result <-
@@ -444,6 +468,7 @@ num_vec <- function(
 #' @param allowed A vector of allowable values
 #' @param level Setting "warn" throws a warning, setting "error" halts
 #' @param allow_na Should NA values be allowed?
+#' @param allow_dups Should duplicates be allowed?
 #' @return
 #' A function with the following properties:
 #'
@@ -471,7 +496,8 @@ chr_vec <- function(
     min_len = 1,
     allowed = NA,
     level = "error",
-    allow_na = FALSE) {
+    allow_na = FALSE,
+    allow_dups = TRUE) {
   # Check validator inputs
   validator_input_check(level, max_len, min_len)
 
@@ -495,6 +521,12 @@ chr_vec <- function(
     
     if (!allow_na && any(is.na(x))) {
       return(list(result = FALSE, level = level))
+    }
+    
+    if (!allow_dups) {
+      if (length(unique(x)) != length(x)) {
+        return(list(result = FALSE, level = level))
+      }
     }
 
     result <-
