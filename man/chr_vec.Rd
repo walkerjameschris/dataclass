@@ -4,7 +4,13 @@
 \alias{chr_vec}
 \title{Validator: Check if element is a character}
 \usage{
-chr_vec(max_len = Inf, min_len = 1, allowed = NA, level = "error")
+chr_vec(
+  max_len = Inf,
+  min_len = 1,
+  allowed = NA,
+  level = "error",
+  allow_na = FALSE
+)
 }
 \arguments{
 \item{max_len}{The maximum length of a character element}
@@ -14,6 +20,8 @@ chr_vec(max_len = Inf, min_len = 1, allowed = NA, level = "error")
 \item{allowed}{A vector of allowable values}
 
 \item{level}{Setting "warn" throws a warning, setting "error" halts}
+
+\item{allow_na}{Should NA values be allowed?}
 }
 \value{
 A function with the following properties:

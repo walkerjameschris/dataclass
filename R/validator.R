@@ -180,6 +180,7 @@ any_obj <- function() function(x) TRUE
 #' @param max_len The maximum length of an atomic element
 #' @param min_len The minimum length of an atomic element
 #' @param level Setting "warn" throws a warning, setting "error" halts
+#' @param allow_na Should NA values be allowed?
 #' @return
 #' A function with the following properties:
 #'
@@ -213,13 +214,25 @@ any_obj <- function() function(x) TRUE
 #'   atm_val = c("This is", "a character!")
 #' )
 #' @export
-atm_vec <- function(max_len = Inf, min_len = 1, level = "error") {
+atm_vec <- function(
+    max_len = Inf,
+    min_len = 1,
+    level = "error",
+    allow_na = FALSE) {
   # Check validator inputs
   validator_input_check(level, max_len, min_len)
 
   function(x) {
     # Early return for non vectors
     if (!rlang::is_atomic(x)) {
+      return(list(result = FALSE, level = level))
+    }
+    
+    if (allow_na) {
+      x <- x[!is.na(x)]
+    }
+    
+    if (!allow_na && any(is.na(x))) {
       return(list(result = FALSE, level = level))
     }
 
@@ -243,6 +256,7 @@ atm_vec <- function(max_len = Inf, min_len = 1, level = "error") {
 #' @param max_len The maximum length of a date element
 #' @param min_len The minimum length of a date element
 #' @param level Setting "warn" throws a warning, setting "error" halts
+#' @param allow_na Should NA values be allowed?
 #' @return
 #' A function with the following properties:
 #'
@@ -276,13 +290,25 @@ atm_vec <- function(max_len = Inf, min_len = 1, level = "error") {
 #'   dte_val = as.Date(c("2022-01-01", "2023-01-01"))
 #' )
 #' @export
-dte_vec <- function(max_len = Inf, min_len = 1, level = "error") {
+dte_vec <- function(
+    max_len = Inf,
+    min_len = 1,
+    level = "error",
+    allow_na = FALSE) {
   # Check validator inputs
   validator_input_check(level, max_len, min_len)
 
   function(x) {
     # Early return for non vectors
     if (!(inherits(x, "Date") || inherits(x, "POSIXct"))) {
+      return(list(result = FALSE, level = level))
+    }
+    
+    if (allow_na) {
+      x <- x[!is.na(x)]
+    }
+    
+    if (!allow_na && any(is.na(x))) {
       return(list(result = FALSE, level = level))
     }
 
@@ -310,6 +336,7 @@ dte_vec <- function(max_len = Inf, min_len = 1, level = "error") {
 #' @param min_val The minimum value of a numeric element
 #' @param allowed A vector of allowable values
 #' @param level Setting "warn" throws a warning, setting "error" halts
+#' @param allow_na Should NA values be allowed?
 #' @return
 #' A function with the following properties:
 #'
@@ -356,7 +383,8 @@ num_vec <- function(
     max_val = Inf,
     min_val = -Inf,
     allowed = NA,
-    level = "error") {
+    level = "error",
+    allow_na = FALSE) {
   # Check validator inputs
   validator_input_check(
     level, max_len, min_len,
@@ -373,6 +401,14 @@ num_vec <- function(
   function(x) {
     # Early return for non vectors
     if (!rlang::is_bare_numeric(x)) {
+      return(list(result = FALSE, level = level))
+    }
+    
+    if (allow_na) {
+      x <- x[!is.na(x)]
+    }
+    
+    if (!allow_na && any(is.na(x))) {
       return(list(result = FALSE, level = level))
     }
 
@@ -407,6 +443,7 @@ num_vec <- function(
 #' @param min_len The minimum length of a character element
 #' @param allowed A vector of allowable values
 #' @param level Setting "warn" throws a warning, setting "error" halts
+#' @param allow_na Should NA values be allowed?
 #' @return
 #' A function with the following properties:
 #'
@@ -433,7 +470,8 @@ chr_vec <- function(
     max_len = Inf,
     min_len = 1,
     allowed = NA,
-    level = "error") {
+    level = "error",
+    allow_na = FALSE) {
   # Check validator inputs
   validator_input_check(level, max_len, min_len)
 
@@ -448,6 +486,14 @@ chr_vec <- function(
   function(x) {
     # Early return for non vectors
     if (!rlang::is_bare_character(x)) {
+      return(list(result = FALSE, level = level))
+    }
+    
+    if (allow_na) {
+      x <- x[!is.na(x)]
+    }
+    
+    if (!allow_na && any(is.na(x))) {
       return(list(result = FALSE, level = level))
     }
 
@@ -478,6 +524,7 @@ chr_vec <- function(
 #' @param max_len The maximum length of a logical element
 #' @param min_len The minimum length of a logical element
 #' @param level Setting "warn" throws a warning, setting "error" halts
+#' @param allow_na Should NA values be allowed?
 #' @return
 #' A function with the following properties:
 #'
@@ -500,13 +547,22 @@ chr_vec <- function(
 lgl_vec <- function(
     max_len = Inf,
     min_len = 1,
-    level = "error") {
+    level = "error",
+    allow_na = FALSE) {
   # Check validator inputs
   validator_input_check(level, max_len, min_len)
 
   function(x) {
     # Early return for non vectors
     if (!rlang::is_bare_logical(x)) {
+      return(list(result = FALSE, level = level))
+    }
+    
+    if (allow_na) {
+      x <- x[!is.na(x)]
+    }
+    
+    if (!allow_na && any(is.na(x))) {
       return(list(result = FALSE, level = level))
     }
 

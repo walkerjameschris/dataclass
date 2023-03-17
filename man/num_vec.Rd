@@ -10,7 +10,8 @@ num_vec(
   max_val = Inf,
   min_val = -Inf,
   allowed = NA,
-  level = "error"
+  level = "error",
+  allow_na = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ num_vec(
 \item{allowed}{A vector of allowable values}
 
 \item{level}{Setting "warn" throws a warning, setting "error" halts}
+
+\item{allow_na}{Should NA values be allowed?}
 }
 \value{
 A function with the following properties:

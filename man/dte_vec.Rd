@@ -4,7 +4,7 @@
 \alias{dte_vec}
 \title{Validator: Check if element is a date}
 \usage{
-dte_vec(max_len = Inf, min_len = 1, level = "error")
+dte_vec(max_len = Inf, min_len = 1, level = "error", allow_na = FALSE)
 }
 \arguments{
 \item{max_len}{The maximum length of a date element}
@@ -12,6 +12,8 @@ dte_vec(max_len = Inf, min_len = 1, level = "error")
 \item{min_len}{The minimum length of a date element}
 
 \item{level}{Setting "warn" throws a warning, setting "error" halts}
+
+\item{allow_na}{Should NA values be allowed?}
 }
 \value{
 A function with the following properties:

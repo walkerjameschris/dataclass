@@ -1,4 +1,11 @@
 testthat::test_that("Invalid logical input:", {
+  # Un-handled NAs
+  testthat::expect_error(
+    dataclass::dataclass(lgl = dataclass::dte_vec())(
+      lgl = c(TRUE, NA)
+    )
+  )
+  
   # Logical input is not logical
   testthat::expect_error(
     dataclass::dataclass(lgl = dataclass::lgl_vec())(
