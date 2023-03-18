@@ -144,7 +144,7 @@ dataclass <- function(...) {
         # Handle advanced validators
         if (rlang::is_bare_list(result)) {
           return(tibble::tibble(
-            name,
+            name = glue::glue("{name}: {result$report}"),
             valid = result$result,
             level = result$level
           ))

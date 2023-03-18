@@ -227,29 +227,35 @@ atm_vec <- function(
   function(x) {
     # Early return for non vectors
     if (!rlang::is_atomic(x)) {
-      return(list(result = FALSE, level = level))
+      return(list(result = FALSE, level = level, report = "Is not atomic!"))
     }
     
+    # Removes NAs if allowed
     if (allow_na) {
       x <- x[!is.na(x)]
     }
     
-    if (!allow_na && any(is.na(x))) {
-      return(list(result = FALSE, level = level))
+    # Report of issues
+    tests <- c(
+      "NAs found" = !allow_na && any(is.na(x)),
+      "duplicates found" = !allow_dups && (length(unique(x)) != length(x)),
+      "too few values" = length(x) < min_len,
+      "too many values" = length(x) > max_len
+    )
+    
+    issues <- names(tests[tests])
+    report <- "All good"
+    
+    # If issues found regenerate report
+    if (length(issues) >= 1) {
+      report <- glue::glue_collapse(issues, sep = ", ")
     }
     
-    if (!allow_dups) {
-      if (length(unique(x)) != length(x)) {
-        return(list(result = FALSE, level = level))
-      }
-    }
-
+    # Return result
     list(
-      result = all(c(
-        length(x) <= max_len,
-        length(x) >= min_len
-      )),
-      level = level
+      result = !any(tests),
+      level = level,
+      report = report
     )
   }
 }
@@ -311,29 +317,34 @@ dte_vec <- function(
   function(x) {
     # Early return for non vectors
     if (!(inherits(x, "Date") || inherits(x, "POSIXct"))) {
-      return(list(result = FALSE, level = level))
+      return(list(result = FALSE, level = level, report = "Not a date!"))
     }
     
     if (allow_na) {
       x <- x[!is.na(x)]
     }
     
-    if (!allow_na && any(is.na(x))) {
-      return(list(result = FALSE, level = level))
+    # Report of issues
+    tests <- c(
+      "NAs found" = !allow_na && any(is.na(x)),
+      "duplicates found" = !allow_dups && (length(unique(x)) != length(x)),
+      "too few values" = length(x) < min_len,
+      "too many values" = length(x) > max_len
+    )
+    
+    issues <- names(tests[tests])
+    report <- "All good"
+    
+    # If issues found regenerate report
+    if (length(issues) >= 1) {
+      report <- glue::glue_collapse(issues, sep = ", ")
     }
     
-    if (!allow_dups) {
-      if (length(unique(x)) != length(x)) {
-        return(list(result = FALSE, level = level))
-      }
-    }
-
+    # Return result
     list(
-      result = all(c(
-        length(x) <= max_len,
-        length(x) >= min_len
-      )),
-      level = level
+      result = !any(tests),
+      level = level,
+      report = report
     )
   }
 }
@@ -419,38 +430,37 @@ num_vec <- function(
   function(x) {
     # Early return for non vectors
     if (!rlang::is_bare_numeric(x)) {
-      return(list(result = FALSE, level = level))
+      return(list(result = FALSE, level = level, report = "Not a numeric!"))
     }
     
     if (allow_na) {
       x <- x[!is.na(x)]
     }
     
-    if (!allow_na && any(is.na(x))) {
-      return(list(result = FALSE, level = level))
+    # Report of issues
+    tests <- c(
+      "NAs found" = !allow_na && any(is.na(x)),
+      "duplicates found" = !allow_dups && (length(unique(x)) != length(x)),
+      "too few values" = length(x) < min_len,
+      "too many values" = length(x) > max_len,
+      "values exceed upper bound" = any(x > max_val),
+      "values are below lower bound" = any(x < min_val),
+      "non-allowable values found" = !is.na(allowed) && !all(x %in% allowed)
+    )
+    
+    issues <- names(tests[tests])
+    report <- "All good"
+    
+    # If issues found regenerate report
+    if (length(issues) >= 1) {
+      report <- glue::glue_collapse(issues, sep = ", ")
     }
     
-    if (!allow_dups) {
-      if (length(unique(x)) != length(x)) {
-        return(list(result = FALSE, level = level))
-      }
-    }
-
-    result <-
-      all(c(
-        length(x) <= max_len,
-        length(x) >= min_len,
-        x <= max_val,
-        x >= min_val
-      ))
-
-    if (!all(is.na(allowed))) {
-      result <- result && all(x %in% allowed)
-    }
-
+    # Return result
     list(
-      result = result,
-      level = level
+      result = !any(tests),
+      level = level,
+      report = report
     )
   }
 }
@@ -512,36 +522,35 @@ chr_vec <- function(
   function(x) {
     # Early return for non vectors
     if (!rlang::is_bare_character(x)) {
-      return(list(result = FALSE, level = level))
+      return(list(result = FALSE, level = level, report = "Not a character!"))
     }
     
     if (allow_na) {
       x <- x[!is.na(x)]
     }
     
-    if (!allow_na && any(is.na(x))) {
-      return(list(result = FALSE, level = level))
+    # Report of issues
+    tests <- c(
+      "NAs found" = !allow_na && any(is.na(x)),
+      "duplicates found" = !allow_dups && (length(unique(x)) != length(x)),
+      "too few values" = length(x) < min_len,
+      "too many values" = length(x) > max_len,
+      "non-allowable values found" = !is.na(allowed) && !all(x %in% allowed)
+    )
+    
+    issues <- names(tests[tests])
+    report <- "All good"
+    
+    # If issues found regenerate report
+    if (length(issues) >= 1) {
+      report <- glue::glue_collapse(issues, sep = ", ")
     }
     
-    if (!allow_dups) {
-      if (length(unique(x)) != length(x)) {
-        return(list(result = FALSE, level = level))
-      }
-    }
-
-    result <-
-      all(c(
-        length(x) <= max_len,
-        length(x) >= min_len
-      ))
-
-    if (!all(is.na(allowed))) {
-      result <- result && all(x %in% allowed)
-    }
-
+    # Return result
     list(
-      result = result,
-      level = level
+      result = !any(tests),
+      level = level,
+      report = report
     )
   }
 }
@@ -587,26 +596,33 @@ lgl_vec <- function(
   function(x) {
     # Early return for non vectors
     if (!rlang::is_bare_logical(x)) {
-      return(list(result = FALSE, level = level))
+      return(list(result = FALSE, level = level, report = "Not logical!"))
     }
     
     if (allow_na) {
       x <- x[!is.na(x)]
     }
     
-    if (!allow_na && any(is.na(x))) {
-      return(list(result = FALSE, level = level))
+    # Report of issues
+    tests <- c(
+      "NAs found" = !allow_na && any(is.na(x)),
+      "too few values" = length(x) < min_len,
+      "too many values" = length(x) > max_len
+    )
+    
+    issues <- names(tests[tests])
+    report <- "All good"
+    
+    # If issues found regenerate report
+    if (length(issues) >= 1) {
+      report <- glue::glue_collapse(issues, sep = ", ")
     }
-
-    result <-
-      all(c(
-        length(x) <= max_len,
-        length(x) >= min_len
-      ))
-
+    
+    # Return result
     list(
-      result = result,
-      level = level
+      result = !any(tests),
+      level = level,
+      report = report
     )
   }
 }
@@ -647,15 +663,32 @@ df_like <- function(max_row = Inf, min_row = 1, level = "error") {
   function(x) {
     # Early return for non vectors
     if (!(inherits(x, "data.frame"))) {
-      return(list(result = FALSE, level = level))
+      return(list(
+        result = FALSE,
+        level = level,
+        report = "Not data frame like!"
+      ))
     }
 
+    # Report of issues
+    tests <- c(
+      "too few rows" = nrow(x) < min_row,
+      "too many rows" = nrow(x) > max_row
+    )
+    
+    issues <- names(tests[tests])
+    report <- "All good"
+    
+    # If issues found regenerate report
+    if (length(issues) >= 1) {
+      report <- glue::glue_collapse(issues, sep = ", ")
+    }
+    
+    # Return result
     list(
-      result = all(c(
-        nrow(x) <= max_row,
-        nrow(x) >= min_row
-      )),
-      level = level
+      result = !any(tests),
+      level = level,
+      report = report
     )
   }
 }
