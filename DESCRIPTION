@@ -9,8 +9,8 @@ Authors@R: c(person(
           ))
 Description: Easily define templated lists and data frames with an associated
     validator function for each element. This could be considered a very-minimal
-    S7-like standard aimed at validating data frames and lists; two data
-    structures the majority of R programmers know well.
+    object-oriented-like standard aimed at validating data frames and lists; two
+    data structures the majority of R programmers know well.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports: purrr, rlang, glue, magrittr, tibble, cli, dplyr

@@ -445,7 +445,7 @@ num_vec <- function(
       "too many values" = length(x) > max_len,
       "values exceed upper bound" = any(x > max_val),
       "values are below lower bound" = any(x < min_val),
-      "non-allowable values found" = !is.na(allowed) && !all(x %in% allowed)
+      "non-allowable values found" = !all(is.na(allowed)) && !all(x %in% allowed)
     )
     
     issues <- names(tests[tests])
@@ -535,7 +535,7 @@ chr_vec <- function(
       "duplicates found" = !allow_dups && (length(unique(x)) != length(x)),
       "too few values" = length(x) < min_len,
       "too many values" = length(x) > max_len,
-      "non-allowable values found" = !is.na(allowed) && !all(x %in% allowed)
+      "non-allowable values found" = !all(is.na(allowed)) && !all(x %in% allowed)
     )
     
     issues <- names(tests[tests])
