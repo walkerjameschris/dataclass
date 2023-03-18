@@ -28,9 +28,9 @@ testthat::test_that("Invalid data like input:", {
   )
 
   # Too few rows
-  testthat::expect_warning(
+  testthat::expect_error(
     dataclass::dataclass(dfl = dataclass::df_like(
-      min_row = 100, level = "warn"
+      min_row = 100
     ))(
       dfl = mtcars
     )
