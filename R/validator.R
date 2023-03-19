@@ -1,29 +1,23 @@
-validator_input_check <- function(level, ...) {
-  # Check if level is error or warning
-  if (!(level %in% c("error", "warn"))) {
-    cli::cli_abort(c(
-      'Level must be "error" or "warn"!',
-      "i" = '`level = "error"` will halt if element is invalid',
-      "i" = '`level = "warn"` will throw a warning, but not halt'
-    ))
+
+dataclass_record <- function(level, report, valid = FALSE) {
+  # Creates a dataclass record with custom attribute
+  
+  validity_check <- tibble::tibble(valid, level, report)
+  attr(validity_check, ".dataclass") <- TRUE
+  validity_check
+}
+
+dataclass_return <- function(level, tests) {
+  # Returns a dataclass report
+  
+  issues <- names(tests[tests])
+  report <- "Nothing to report"
+  
+  if (length(issues) >= 1) {
+    report <- glue::glue_collapse(issues, sep = ", ")
   }
-
-  # Check if dimension arguments are valid
-  dim_args <-
-    list(...) %>%
-    purrr::map_lgl(function(x) {
-      !rlang::is_atomic(x) || length(x) > 1
-    })
-
-  # Identify problematic inputs
-  prob_args <- names(dim_args[dim_args])
-
-  if (length(prob_args) >= 1) {
-    cli::cli_abort(c(
-      "These elements are not single length atomic limits:",
-      purrr::set_names(prob_args, "x")
-    ))
-  }
+  
+  dataclass_record(level, report, !any(tests))
 }
 
 #' Convert a dataclass to a data frame validator
@@ -76,42 +70,56 @@ validator_input_check <- function(level, ...) {
 #'   test_df_class()
 #' @export
 data_validator <- function(x, strict_cols = TRUE) {
+  
   function(data) {
-    dc_names <- names(formals(x))
-    df_names <- names(data)
+    
+    dataclass_names <- names(formals(x))
+    dataframe_names <- names(data)
+    
+    # Names in dataclass but not input data
+    in_dataclass <-
+      setdiff(
+        x = dataclass_names,
+        y = dataframe_names
+      )
+    
+    # Names in input data but not dataclass
+    in_dataframe <-
+      setdiff(
+        x = dataframe_names,
+        y = dataclass_names
+      )
 
     # Checks if columns defined in dataclass are in data
-    if (!all(dc_names %in% df_names)) {
+    if (length(in_dataclass) >= 1) {
       cli::cli_abort(c(
         "Input data is missing these columns:",
-        purrr::set_names(setdiff(dc_names, df_names), "i")
+        purrr::set_names(in_dataclass, "i")
       ))
     }
 
     # Checks for bloat columns if strict_cols = TRUE
-    if (strict_cols) {
-      if (!all(df_names %in% dc_names)) {
-        cli::cli_abort(c(
-          "Ensure no additional columns are present!",
-          "dataclass can only check for these known columns:",
-          purrr::set_names(dc_names, "i"),
-          "i" = "Set data_validator(strict_cols = FALSE)` to bypass this check."
-        ))
-      }
+    if (strict_cols && length(in_dataframe) >= 1) {
+      cli::cli_abort(c(
+        "Ensure no additional columns are present!",
+        "dataclass can only check for these known columns:",
+        purrr::set_names(dataclass_names, "i"),
+        "i" = "Set data_validator(strict_cols = FALSE)` to bypass this check."
+      ))
     }
 
     # Main columns to check
     subset_df <-
       data %>%
       dplyr::select(
-        dplyr::all_of(dc_names)
+        dplyr::all_of(dataclass_names)
       )
 
     # Additional columns to check
     extra_df <-
       data %>%
       dplyr::select(
-        -dplyr::all_of(dc_names)
+        -dplyr::all_of(dataclass_names)
       )
 
     # Call dataclass and reassemble data
@@ -119,7 +127,7 @@ data_validator <- function(x, strict_cols = TRUE) {
       tibble::as_tibble() %>%
       dplyr::bind_cols(extra_df) %>%
       dplyr::select(
-        dplyr::all_of(df_names)
+        dplyr::all_of(dataframe_names)
       )
   }
 }
@@ -172,7 +180,7 @@ any_obj <- function() function(x) TRUE
 #'
 #' This function is used to check whether something is atomic. Atomic elements
 #' are represented by simple vectors, (i.e., numeric, logical, character) but
-#' also include special vectors like Date vectors. You can use this function
+#' also include special vectors like date vectors. You can use this function
 #' to check the length of a vector. You can also specify the level of a
 #' violation. If level is set to "warn" then invalid inputs will warn you.
 #' However, if level is set to "error" then invalid inputs will abort.
@@ -221,41 +229,21 @@ atm_vec <- function(
     level = "error",
     allow_na = FALSE,
     allow_dups = TRUE) {
-  # Check validator inputs
-  validator_input_check(level, max_len, min_len)
 
   function(x) {
-    # Early return for non vectors
+
     if (!rlang::is_atomic(x)) {
-      return(list(result = FALSE, level = level, report = "Is not atomic!"))
+      return(dataclass_record(level, "is not atomic"))
     }
     
-    # Removes NAs if allowed
-    if (allow_na) {
-      x <- x[!is.na(x)]
-    }
-    
-    # Report of issues
-    tests <- c(
-      "NAs found" = !allow_na && any(is.na(x)),
-      "duplicates found" = !allow_dups && (length(unique(x)) != length(x)),
-      "too few values" = length(x) < min_len,
-      "too many values" = length(x) > max_len
-    )
-    
-    issues <- names(tests[tests])
-    report <- "All good"
-    
-    # If issues found regenerate report
-    if (length(issues) >= 1) {
-      report <- glue::glue_collapse(issues, sep = ", ")
-    }
-    
-    # Return result
-    list(
-      result = !any(tests),
-      level = level,
-      report = report
+    dataclass_return(
+      level,
+      tests = c(
+        "NAs found" = !allow_na && any(is.na(x)),
+        "duplicates found" = !allow_dups && (length(unique(x)) != length(x)),
+        "too few values" = length(x) < min_len,
+        "too many values" = length(x) > max_len
+      )
     )
   }
 }
@@ -311,40 +299,21 @@ dte_vec <- function(
     level = "error",
     allow_na = FALSE,
     allow_dups = TRUE) {
-  # Check validator inputs
-  validator_input_check(level, max_len, min_len)
 
   function(x) {
-    # Early return for non vectors
+    
     if (!(inherits(x, "Date") || inherits(x, "POSIXct"))) {
-      return(list(result = FALSE, level = level, report = "Not a date!"))
+      return(dataclass_record(level, "is not a date"))
     }
     
-    if (allow_na) {
-      x <- x[!is.na(x)]
-    }
-    
-    # Report of issues
-    tests <- c(
-      "NAs found" = !allow_na && any(is.na(x)),
-      "duplicates found" = !allow_dups && (length(unique(x)) != length(x)),
-      "too few values" = length(x) < min_len,
-      "too many values" = length(x) > max_len
-    )
-    
-    issues <- names(tests[tests])
-    report <- "All good"
-    
-    # If issues found regenerate report
-    if (length(issues) >= 1) {
-      report <- glue::glue_collapse(issues, sep = ", ")
-    }
-    
-    # Return result
-    list(
-      result = !any(tests),
-      level = level,
-      report = report
+    dataclass_return(
+      level,
+      tests = c(
+        "NAs found" = !allow_na && any(is.na(x)),
+        "duplicates found" = !allow_dups && (length(unique(x)) != length(x)),
+        "too few values" = length(x) < min_len,
+        "too many values" = length(x) > max_len
+      )
     )
   }
 }
@@ -414,53 +383,27 @@ num_vec <- function(
     level = "error",
     allow_na = FALSE,
     allow_dups = TRUE) {
-  # Check validator inputs
-  validator_input_check(
-    level, max_len, min_len,
-    max_val, min_val
-  )
-
-  if (!(rlang::is_bare_numeric(allowed) || all(is.na(allowed)))) {
-    cli::cli_abort(c(
-      "x" = "`allowed` must be an numeric vector of allowable values",
-      "i" = "You can also set `allowed` to NA to allow any values!"
-    ))
-  }
 
   function(x) {
     # Early return for non vectors
     if (!rlang::is_bare_numeric(x)) {
-      return(list(result = FALSE, level = level, report = "Not a numeric!"))
+      return(dataclass_record(level, "is not numeric"))
     }
     
-    if (allow_na) {
-      x <- x[!is.na(x)]
-    }
-    
+    x_narm <- x[!is.na(x)]
+  
     # Report of issues
-    tests <- c(
-      "NAs found" = !allow_na && any(is.na(x)),
-      "duplicates found" = !allow_dups && (length(unique(x)) != length(x)),
-      "too few values" = length(x) < min_len,
-      "too many values" = length(x) > max_len,
-      "values exceed upper bound" = any(x > max_val),
-      "values are below lower bound" = any(x < min_val),
-      "non-allowable values found" = !all(is.na(allowed)) && !all(x %in% allowed)
-    )
-    
-    issues <- names(tests[tests])
-    report <- "All good"
-    
-    # If issues found regenerate report
-    if (length(issues) >= 1) {
-      report <- glue::glue_collapse(issues, sep = ", ")
-    }
-    
-    # Return result
-    list(
-      result = !any(tests),
-      level = level,
-      report = report
+    dataclass_return(
+      level,
+      tests = c(
+        "NAs found" = !allow_na && any(is.na(x)),
+        "duplicates found" = !allow_dups && (length(unique(x)) != length(x)),
+        "too few values" = length(x) < min_len,
+        "too many values" = length(x) > max_len,
+        "values exceed upper bound" = any(x_narm > max_val),
+        "values are below lower bound" = any(x_narm < min_val),
+        "non-allowable values found" = !all(is.na(allowed)) && !all(x %in% allowed)
+      )
     )
   }
 }
@@ -508,49 +451,23 @@ chr_vec <- function(
     level = "error",
     allow_na = FALSE,
     allow_dups = TRUE) {
-  # Check validator inputs
-  validator_input_check(level, max_len, min_len)
-
-  # Validate allowed
-  if (!(rlang::is_bare_character(allowed) || all(is.na(allowed)))) {
-    cli::cli_abort(c(
-      "x" = "`allowed` must be an character vector of allowable values",
-      "i" = "You can also set `allowed` to NA to allow any values!"
-    ))
-  }
 
   function(x) {
-    # Early return for non vectors
+
     if (!rlang::is_bare_character(x)) {
-      return(list(result = FALSE, level = level, report = "Not a character!"))
-    }
-    
-    if (allow_na) {
-      x <- x[!is.na(x)]
+      return(dataclass_record(level, "is not a character"))
     }
     
     # Report of issues
-    tests <- c(
-      "NAs found" = !allow_na && any(is.na(x)),
-      "duplicates found" = !allow_dups && (length(unique(x)) != length(x)),
-      "too few values" = length(x) < min_len,
-      "too many values" = length(x) > max_len,
-      "non-allowable values found" = !all(is.na(allowed)) && !all(x %in% allowed)
-    )
-    
-    issues <- names(tests[tests])
-    report <- "All good"
-    
-    # If issues found regenerate report
-    if (length(issues) >= 1) {
-      report <- glue::glue_collapse(issues, sep = ", ")
-    }
-    
-    # Return result
-    list(
-      result = !any(tests),
-      level = level,
-      report = report
+    dataclass_return(
+      level,
+      tests = c(
+        "NAs found" = !allow_na && any(is.na(x)),
+        "duplicates found" = !allow_dups && (length(unique(x)) != length(x)),
+        "too few values" = length(x) < min_len,
+        "too many values" = length(x) > max_len,
+        "non-allowable values found" = !all(is.na(allowed)) && !all(x %in% allowed)
+      )
     )
   }
 }
@@ -590,39 +507,20 @@ lgl_vec <- function(
     min_len = 1,
     level = "error",
     allow_na = FALSE) {
-  # Check validator inputs
-  validator_input_check(level, max_len, min_len)
 
   function(x) {
-    # Early return for non vectors
+
     if (!rlang::is_bare_logical(x)) {
-      return(list(result = FALSE, level = level, report = "Not logical!"))
+      return(dataclass_record(level, "is not a logical"))
     }
-    
-    if (allow_na) {
-      x <- x[!is.na(x)]
-    }
-    
-    # Report of issues
-    tests <- c(
-      "NAs found" = !allow_na && any(is.na(x)),
-      "too few values" = length(x) < min_len,
-      "too many values" = length(x) > max_len
-    )
-    
-    issues <- names(tests[tests])
-    report <- "All good"
-    
-    # If issues found regenerate report
-    if (length(issues) >= 1) {
-      report <- glue::glue_collapse(issues, sep = ", ")
-    }
-    
-    # Return result
-    list(
-      result = !any(tests),
-      level = level,
-      report = report
+
+    dataclass_return(
+      level,
+      tests = c(
+        "NAs found" = !allow_na && any(is.na(x)),
+        "too few values" = length(x) < min_len,
+        "too many values" = length(x) > max_len
+      )
     )
   }
 }
@@ -657,38 +555,19 @@ lgl_vec <- function(
 #' )
 #' @export
 df_like <- function(max_row = Inf, min_row = 1, level = "error") {
-  # Check validator inputs
-  validator_input_check(level, max_row, min_row)
 
   function(x) {
-    # Early return for non vectors
-    if (!(inherits(x, "data.frame"))) {
-      return(list(
-        result = FALSE,
-        level = level,
-        report = "Not data frame like!"
-      ))
+    
+    if (!inherits(x, "data.frame")) {
+      return(dataclass_record(level, "is not data frame like"))
     }
 
-    # Report of issues
-    tests <- c(
-      "too few rows" = nrow(x) < min_row,
-      "too many rows" = nrow(x) > max_row
-    )
-    
-    issues <- names(tests[tests])
-    report <- "All good"
-    
-    # If issues found regenerate report
-    if (length(issues) >= 1) {
-      report <- glue::glue_collapse(issues, sep = ", ")
-    }
-    
-    # Return result
-    list(
-      result = !any(tests),
-      level = level,
-      report = report
+    dataclass_return(
+      level,
+      tests = c(
+        "too few rows" = nrow(x) < min_row,
+        "too many rows" = nrow(x) > max_row
+      )
     )
   }
 }

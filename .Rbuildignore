@@ -3,3 +3,7 @@
 tests/*
 LICENSE.md
 ^\.github$
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata

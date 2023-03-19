@@ -33,7 +33,7 @@ A function with the following properties:
 \description{
 This function is used to check whether something is atomic. Atomic elements
 are represented by simple vectors, (i.e., numeric, logical, character) but
-also include special vectors like Date vectors. You can use this function
+also include special vectors like date vectors. You can use this function
 to check the length of a vector. You can also specify the level of a
 violation. If level is set to "warn" then invalid inputs will warn you.
 However, if level is set to "error" then invalid inputs will abort.
