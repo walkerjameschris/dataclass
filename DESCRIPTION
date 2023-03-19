@@ -1,16 +1,20 @@
 Package: dataclass
 Type: Package
 Title: Easily Create Structured Lists or Data Frames with Input Validation
-Version: 0.1.12
+Version: 0.2.0
 Authors@R: c(person(
             "Chris", "Walker",
             role = c("aut", "cre", "cph"),
             email = "walkerjameschris@gmail.com"
           ))
-Description: Easily define templated lists and data frames with an associated
-    validator function for each element. This could be considered a very-minimal
-    object-oriented-like standard aimed at validating data frames and lists; two
-    data structures the majority of R programmers know well.
+Description: Easily define templates for lists and data frames that validate
+    each element. Specify the expected type (i.e., character, numeric, etc),
+    expected length, minimum and maximum values, allowable values, and more for
+    each element in your data. Decide whether violations of these expectations
+    should throw an error or a warning. This package is useful for validating
+    data within R processes which pull from dynamic data sources such as
+    databases and web APIs to provide an extra layer of validation around input
+    and output data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports: purrr, rlang, glue, magrittr, tibble, cli, dplyr

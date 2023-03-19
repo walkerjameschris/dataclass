@@ -8,7 +8,7 @@ testthat::test_that("Invalid numeric input:", {
   
   # Un-handled NAs
   testthat::expect_error(
-    dataclass::dataclass(num = dataclass::dte_vec())(
+    dataclass::dataclass(num = dataclass::num_vec())(
       num = c(NA, 1)
     )
   )

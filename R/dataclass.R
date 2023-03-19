@@ -62,56 +62,44 @@
 #' @export
 #' @importFrom magrittr `%>%`
 dataclass <- function(...) {
-  # Extract validators
-  validator_list <- list(...)
-  validator_name <- names(validator_list)
-
-  # Checks if all elements are unnamed
+  
+  # Extract inputs and their components for validation
+  validator_funs <- list(...)
+  validator_name <- names(validator_funs)
+  not_named_funs <- which(validator_name == "")
+  non_functions  <- names(purrr::discard(validator_funs, ~ is.function(.x)))
+  
   if (is.null(validator_name)) {
-    cli::cli_abort("All validators must be named!")
+    cli::cli_abort("All validators must be named functions!")
   }
 
-  # Checks if some elements are unnamed
-  unnamed_element <- which(validator_name == "")
-
-  if (length(unnamed_element) >= 1) {
+  if (length(not_named_funs) >= 1) {
     cli::cli_abort(c(
       "Validators at these positions are unnamed:",
-      purrr::set_names(unnamed_element, "x")
+      purrr::set_names(not_named_funs, "x")
     ))
   }
-
-  # Checks if elements are functions
-  function_check <-
-    validator_list %>%
-    purrr::map_lgl(is.function)
-
-  # Determine non-functions
-  non_functions <- validator_name[!function_check]
-
-  # Ensures inputs are functions
+  
   if (length(non_functions) >= 1) {
     cli::cli_abort(c(
-      "These validators are not named functions:",
+      "Validators at these positions are not named functions:",
       purrr::set_names(non_functions, "x")
     ))
   }
-
-  # Vanilla dataclass function
+  
+  # If all validators pass checks, create new dataclass
   new_dataclass <- function() {
-    # Assemble dataclass inputs discarding unused arguments
-    inputs <-
-      environment() %>%
-      as.list() %>%
+    
+    inputs_to_validate <-
+      as.list(environment()) %>%
       purrr::discard(rlang::is_symbol)
-
-    # Assemble validators
-    validators <- rlang::dots_list(..., .named = TRUE)
-
-    # Missing args
-    missing_args <- setdiff(names(validators), names(inputs))
-
-    # Throw error if arguments are missing
+    
+    missing_args <-
+      setdiff(
+        x = names(validator_funs),
+        y = names(inputs_to_validate)
+      )
+    
     if (length(missing_args) >= 1) {
       cli::cli_abort(c(
         "The following arguments are missing!",
@@ -123,89 +111,83 @@ dataclass <- function(...) {
         )
       ))
     }
-
+    
     # Determine input validity
     valid <-
-      inputs %>%
+      inputs_to_validate %>%
       purrr::imap(function(input, name) {
-        # Determine which validator to use
-        validator <- validators[[name]]
-        result <- validator(input)
-
-        # Upgrade simple validators
+        
+        result <- validator_funs[[name]](input)
+        
+        # Upgrade simple validators (most often a user defined function)
         if (rlang::is_bare_logical(result)) {
           return(tibble::tibble(
-            name,
+            report = name,
             valid = result,
             level = "error"
           ))
         }
-
-        # Handle advanced validators
-        if (rlang::is_bare_list(result)) {
-          return(tibble::tibble(
-            name = glue::glue("{name}: {result$report}"),
-            valid = result$result,
-            level = result$level
+        
+        # Handle dataclass validators
+        if (!is.null(attr(result, ".dataclass"))) {
+          return(dplyr::mutate(
+            result,
+            report = glue::glue("{name}: {report}")
           ))
         }
-
+        
+        # Return unknown for problematic validators
         tibble::tibble(
-          name,
-          valid = "unknown",
+          report = name,
+          valid = FALSE,
           level = "unknown"
         )
       }) %>%
       dplyr::bind_rows()
-
+    
     # Error separation
-    # TODO: This was originally done with dplyr::filter() but lintr rejects it
-    # TODO: Learn more about unbound variables inside packages
-    problematic <- valid[["name"]][valid[["valid"]] == "unknown"]
-    warn_args <- valid[["name"]][!valid[["valid"]] & valid[["level"]] == "warn"]
-    err_args <- valid[["name"]][!valid[["valid"]] & valid[["level"]] == "error"]
-
-    if (length(problematic) >= 1) {
+    issue <- valid[["report"]][valid[["level"]] == "unknown"]
+    warns <- valid[["report"]][!valid[["valid"]] & valid[["level"]] == "warn"]
+    error <- valid[["report"]][!valid[["valid"]] & valid[["level"]] == "error"]
+    
+    if (length(issue) >= 1) {
       cli::cli_abort(c(
         "These validators returned an unexpected result!",
-        purrr::set_names(problematic, "x"),
+        purrr::set_names(issue, "x"),
         "i" = "Custom validators can only return TRUE/FALSE.",
         "i" = "dataclass built-in validators have more advanced behavior.",
         "See the documentation for more examples."
       ))
     }
-
-    if (length(warn_args) >= 1) {
+    
+    if (length(warns) >= 1) {
       cli::cli_warn(c(
         "The following elements have warn-level violations:",
-        purrr::set_names(warn_args, "x")
+        purrr::set_names(warns, "x")
       ))
     }
-
-    if (length(err_args) >= 1) {
+    
+    if (length(error) >= 1) {
       cli::cli_abort(c(
         "The following elements have error-level violations:",
-        purrr::set_names(err_args, "x")
+        purrr::set_names(error, "x")
       ))
     }
-
-    # Return inputs if no violations are found
-    inputs
+    
+    inputs_to_validate
   }
-
-  # Determines validator names
-  args <-
-    rlang::call_match() %>%
-    rlang::call_args_names() %>%
-    glue::glue_collapse(sep = ", ")
-
-  # Creates formals for dataclass
-  named_fn <-
-    glue::glue("function({args}) {{}}") %>%
+  
+  named_function <-
+    glue::glue(
+      "function({args}) {{}}",
+      args = glue::glue_collapse(
+        validator_name,
+        sep = ", "
+      )
+    ) %>%
     rlang::parse_expr() %>%
     rlang::eval_bare()
-
-  # Returns new dataclass
-  formals(new_dataclass) <- formals(named_fn)
+  
+  formals(new_dataclass) <- formals(named_function)
   new_dataclass
 }
