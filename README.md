@@ -12,5 +12,3 @@ data. Decide whether violations of these expectations should throw an error or a
 warning. This package is useful for validating data within R processes which
 pull from dynamic data sources such as databases and web APIs to provide an
 extra layer of validation around input and output data.
-
-## Quick Reference
