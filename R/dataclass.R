@@ -164,14 +164,14 @@ dataclass <- function(...) {
       cli::cli_warn(c(
         "The following elements have warn-level violations:",
         purrr::set_names(warns, "x")
-      ))
+      ), call = NULL)
     }
     
     if (length(error) >= 1) {  
       cli::cli_abort(c(
         "The following elements have error-level violations:",
         purrr::set_names(error, "x")
-      ))
+      ), call = NULL)
     }
     
     inputs_to_validate
