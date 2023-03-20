@@ -168,7 +168,7 @@ dataclass <- function(...) {
     }
     
     if (length(error) >= 1) {  
-      rm(list = subset(ls(), ls() != "error")
+      rm(list = subset(ls(), ls() != "error"))
       cli::cli_abort(c(
         "The following elements have error-level violations:",
         purrr::set_names(error, "x")
