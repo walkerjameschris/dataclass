@@ -109,26 +109,15 @@ data_validator <- function(x, strict_cols = TRUE) {
     }
 
     # Main columns to check
-    subset_df <-
+    subset_cols <-
       data %>%
       dplyr::select(
         dplyr::all_of(dataclass_names)
-      )
-
-    # Additional columns to check
-    extra_df <-
-      data %>%
-      dplyr::select(
-        -dplyr::all_of(dataclass_names)
-      )
-
-    # Call dataclass and reassemble data
-    do.call(x, subset_df) %>%
-      tibble::as_tibble() %>%
-      dplyr::bind_cols(extra_df) %>%
-      dplyr::select(
-        dplyr::all_of(dataframe_names)
-      )
+      ) %>%
+      as.list()
+    
+    rlang::exec(x, !!!subset_cols)
+    data
   }
 }
 
