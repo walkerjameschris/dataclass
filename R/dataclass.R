@@ -168,11 +168,10 @@ dataclass <- function(...) {
     }
     
     if (length(error) >= 1) {
-      stop()
-#       cli::cli_abort(c(
-#         "The following elements have error-level violations:",
-#         purrr::set_names(error, "x")
-#       ))
+      cli::cli_abort(c(
+        "The following elements have error-level violations:",
+        purrr::set_names(error, "x")
+      ))
     }
     
     inputs_to_validate
