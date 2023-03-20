@@ -108,15 +108,19 @@ data_validator <- function(x, strict_cols = TRUE) {
       ))
     }
 
-    # Main columns to check
-    subset_cols <-
-      data %>%
-      dplyr::select(
-        dplyr::all_of(dataclass_names)
+    # String of column vector names
+    cols_str <-
+      glue::glue(
+        "{arg} = data${arg}",
+        arg = dataclass_names
       ) %>%
-      as.list()
+      glue::glue_collapse(sep = ", ")
     
-    rlang::exec(x, !!!subset_cols)
+    # Check for validity
+    glue::glue("x({cols_str})") %>%
+      rlang::parse_expr() %>%
+      rlang::eval_bare()
+    
     data
   }
 }
