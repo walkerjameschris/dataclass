@@ -3,7 +3,7 @@ dataclass_record <- function(level, report, valid = FALSE) {
   # Creates a dataclass record with custom attribute
   
   validity_check <- tibble::tibble(valid, level, report)
-  attr(validity_check, ".dataclass") <- TRUE
+  attr(validity_check, "dataclass_validator") <- TRUE
   validity_check
 }
 
@@ -18,6 +18,43 @@ dataclass_return <- function(level, tests) {
   }
   
   dataclass_record(level, report, !any(tests))
+}
+
+#' Defines print behavior for dataclass objects
+#'
+#' This function serves to define print behavior for dataclass objects and does
+#' not need to be called directly.
+#'
+#' @param x A dataclass object
+#' @return
+#' A function with the following properties:
+#'
+#' * An argument for each element provided to dataclass()
+#' * Each argument in the returned function will validate inputs
+#' * An error occurs if new elements passed to the returned function are invalid
+#' * List is returned if new elements passed to the returned function are valid
+#'
+#' @examples
+#' # Define a dataclass for creating data! Pass to data_validator():
+#' my_df_dataclass <-
+#'   dataclass(
+#'     dte_col = dte_vec(),
+#'     chr_col = chr_vec(),
+#'     # Custom column validator ensures values are positive!
+#'     new_col = function(x) all(x > 0)
+#'   ) |>
+#'   data_validator()
+#'
+#' # Nicely prints out required elements
+#' my_df_dataclass
+#' @export
+print.dataclass <- function(x) {
+  # Print method for dataclass
+  
+  cli::cli_inform(c(
+    "A dataclass validator checking these elements:",
+    purrr::set_names(attr(x, "validators"), "*")
+  ))
 }
 
 #' Convert a dataclass to a data frame validator
