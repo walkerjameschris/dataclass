@@ -129,7 +129,7 @@ dataclass <- function(...) {
         }
         
         # Handle dataclass validators
-        if (!is.null(attr(result, ".dataclass"))) {
+        if (!is.null(attr(result, "dataclass_validator"))) {
           return(dplyr::mutate(
             result,
             report = glue::glue("{name}: {report}")
@@ -189,5 +189,8 @@ dataclass <- function(...) {
     rlang::eval_bare()
   
   formals(new_dataclass) <- formals(named_function)
+  attr(new_dataclass, "class") <- "dataclass"
+  attr(new_dataclass, "validators") <- validator_name
+  
   new_dataclass
 }
