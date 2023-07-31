@@ -47,14 +47,30 @@ dataclass_return <- function(level, tests) {
 #'
 #' # Nicely prints out required elements
 #' my_df_dataclass
+#' @method print function
 #' @export
-print.dataclass <- function(x) {
+print.function <- function(x) {
   # Print method for dataclass
   
-  cli::cli_inform(c(
-    "A dataclass validator checking these elements:",
-    purrr::set_names(attr(x, "validators"), "*")
-  ))
+  is_dataclass <- !is.null(attr(x, "dataclass"))
+  is_data_validator <- !is.null(attr(x, "dataclass_data_validator"))
+  
+  if (is_dataclass) {
+    cli::cli_inform(c(
+      "A dataclass function which returns a list and checks for:",
+      purrr::set_names(names(as.list(formals(x))), "*")
+    ))
+  } 
+  
+  if (is_data_validator) {
+    cli::cli_inform("A dataclass function which checks a data frame.")
+  }
+  
+  if (!is_dataclass && !is_data_validator) {
+    print(x)
+  }
+  
+  invisible(x)
 }
 
 #' Convert a dataclass to a data frame validator
@@ -108,59 +124,65 @@ print.dataclass <- function(x) {
 #' @export
 data_validator <- function(x, strict_cols = TRUE) {
   
-  function(data) {
+  new_data_validator <-
+    function(data) {
     
-    dataclass_names <- names(formals(x))
-    dataframe_names <- names(data)
-    
-    # Names in dataclass but not input data
-    in_dataclass <-
-      setdiff(
-        x = dataclass_names,
-        y = dataframe_names
-      )
-    
-    # Names in input data but not dataclass
-    in_dataframe <-
-      setdiff(
-        x = dataframe_names,
-        y = dataclass_names
-      )
-
-    # Checks if columns defined in dataclass are in data
-    if (length(in_dataclass) >= 1) {
-      cli::cli_abort(c(
-        "Input data is missing these columns:",
-        purrr::set_names(in_dataclass, "i")
-      ))
+      dataclass_names <- names(formals(x))
+      dataframe_names <- names(data)
+      
+      # Names in dataclass but not input data
+      in_dataclass <-
+        setdiff(
+          x = dataclass_names,
+          y = dataframe_names
+        )
+      
+      # Names in input data but not dataclass
+      in_dataframe <-
+        setdiff(
+          x = dataframe_names,
+          y = dataclass_names
+        )
+  
+      # Checks if columns defined in dataclass are in data
+      if (length(in_dataclass) >= 1) {
+        cli::cli_abort(c(
+          "Input data is missing these columns:",
+          purrr::set_names(in_dataclass, "i")
+        ))
+      }
+  
+      # Checks for bloat columns if strict_cols = TRUE
+      if (strict_cols && length(in_dataframe) >= 1) {
+        cli::cli_abort(c(
+          "Ensure no additional columns are present!",
+          "dataclass can only check for these known columns:",
+          purrr::set_names(dataclass_names, "i"),
+          "i" = "Set data_validator(strict_cols = FALSE)` to bypass this check."
+        ))
+      }
+  
+      # String of column vector names
+      cols_str <-
+        glue::glue(
+          "{arg} = data${arg}",
+          arg = dataclass_names
+        ) %>%
+        glue::glue_collapse(sep = ", ")
+      
+      # Check for validity
+      glue::glue("x({cols_str})") %>%
+        rlang::parse_expr() %>%
+        rlang::eval_bare()
+      
+      data
     }
-
-    # Checks for bloat columns if strict_cols = TRUE
-    if (strict_cols && length(in_dataframe) >= 1) {
-      cli::cli_abort(c(
-        "Ensure no additional columns are present!",
-        "dataclass can only check for these known columns:",
-        purrr::set_names(dataclass_names, "i"),
-        "i" = "Set data_validator(strict_cols = FALSE)` to bypass this check."
-      ))
-    }
-
-    # String of column vector names
-    cols_str <-
-      glue::glue(
-        "{arg} = data${arg}",
-        arg = dataclass_names
-      ) %>%
-      glue::glue_collapse(sep = ", ")
-    
-    # Check for validity
-    glue::glue("x({cols_str})") %>%
-      rlang::parse_expr() %>%
-      rlang::eval_bare()
-    
-    data
-  }
+  
+  attr(new_data_validator, "dataclass_data_validator") <- TRUE
+  
+  new_data_validator
 }
+  
 
 #' Validator: Allow any object
 #'
