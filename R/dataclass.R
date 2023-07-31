@@ -189,8 +189,7 @@ dataclass <- function(...) {
     rlang::eval_bare()
   
   formals(new_dataclass) <- formals(named_function)
-  attr(new_dataclass, "class") <- "dataclass"
-  attr(new_dataclass, "validators") <- validator_name
+  attr(new_dataclass, "dataclass") <- TRUE
   
   new_dataclass
 }
