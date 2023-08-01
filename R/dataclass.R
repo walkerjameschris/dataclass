@@ -129,7 +129,7 @@ dataclass <- function(...) {
         }
         
         # Handle dataclass validators
-        if (!is.null(attr(result, ".dataclass"))) {
+        if (!is.null(attr(result, "dataclass_validator"))) {
           return(dplyr::mutate(
             result,
             report = glue::glue("{name}: {report}")
@@ -189,5 +189,118 @@ dataclass <- function(...) {
     rlang::eval_bare()
   
   formals(new_dataclass) <- formals(named_function)
+  attr(new_dataclass, "class") <- "dataclass"
+  
   new_dataclass
+}
+
+#' Convert a dataclass to a data frame validator
+#'
+#' If you intend to use your dataclass to validate data frame like object such
+#' as tibbles, data frames, or data tables, pass the dataclass into this
+#' function to modify behavior.
+#'
+#' @param x A dataclass object
+#' @param strict_cols Should additional columns be allowed in the output?
+#' @return
+#' A function with the following properties:
+#'
+#' * A modified dataclass function designed to accept data frames
+#' * A single argument to test new data frames
+#' * Each column in a new data frame will be tested
+#' * An error occurs if new data passed to the returned function are invalid
+#' * Data is returned if new data passed to the returned function are valid
+#'
+#' @examples
+#' # Define a dataclass for creating data! Pass to data_validator():
+#' my_df_dataclass <-
+#'   dataclass(
+#'     dte_col = dte_vec(),
+#'     chr_col = chr_vec(),
+#'     # Custom column validator ensures values are positive!
+#'     new_col = function(x) all(x > 0)
+#'   ) |>
+#'   data_validator()
+#'
+#' # Validate a data frame or data frame like objects!
+#' data.frame(
+#'   dte_col = as.Date("2022-01-01"),
+#'   chr_col = "String!",
+#'   new_col = 100
+#' ) |>
+#'   my_df_dataclass()
+#'
+#' # Allow additional columns in output
+#' test_df_class <-
+#'   dataclass(
+#'     dte_col = dte_vec()
+#'   ) |>
+#'   data_validator(strict_cols = FALSE)
+#'
+#' tibble::tibble(
+#'   dte_col = as.Date("2022-01-01"),
+#'   other_col = "a"
+#' ) |>
+#'   test_df_class()
+#' @export
+data_validator <- function(x, strict_cols = TRUE) {
+  
+  new_data_validator <-
+    function(data) {
+      
+      dataclass_names <- names(formals(x))
+      dataframe_names <- names(data)
+      
+      # Names in dataclass but not input data
+      in_dataclass <-
+        setdiff(
+          x = dataclass_names,
+          y = dataframe_names
+        )
+      
+      # Names in input data but not dataclass
+      in_dataframe <-
+        setdiff(
+          x = dataframe_names,
+          y = dataclass_names
+        )
+      
+      # Checks if columns defined in dataclass are in data
+      if (length(in_dataclass) >= 1) {
+        cli::cli_abort(c(
+          "Input data is missing these columns:",
+          purrr::set_names(in_dataclass, "i")
+        ))
+      }
+      
+      # Checks for bloat columns if strict_cols = TRUE
+      if (strict_cols && length(in_dataframe) >= 1) {
+        cli::cli_abort(c(
+          "Ensure no additional columns are present!",
+          "dataclass can only check for these known columns:",
+          purrr::set_names(dataclass_names, "i"),
+          "i" = "Set `data_validator(strict_cols = FALSE)` to bypass this check."
+        ))
+      }
+      
+      # String of column vector names
+      cols_str <-
+        glue::glue(
+          "{arg} = data${arg}",
+          arg = dataclass_names
+        ) %>%
+        glue::glue_collapse(sep = ", ")
+      
+      # Check for validity
+      glue::glue("x({cols_str})") %>%
+        rlang::parse_expr() %>%
+        rlang::eval_bare()
+      
+      data
+    }
+  
+  attr(new_data_validator, "dataclass_columns") <- names(formals(x))
+  attr(new_data_validator, "class") <- "dataclass"
+  
+  new_data_validator
 }
