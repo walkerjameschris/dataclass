@@ -22,7 +22,7 @@ dataclass_return <- function(level, tests) {
 
 #' @method print dataclass
 #' @export
-print.dataclass <- function(x) {
+print.dataclass <- function(x, ...) {
   # Print method for dataclass
   
   is_dataclass <- class(x) == "dataclass"
