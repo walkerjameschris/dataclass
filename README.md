@@ -2,6 +2,7 @@
 
 [![CRAN status](https://www.r-pkg.org/badges/version/dataclass)](https://cran.r-project.org/package=dataclass)
 [![R build status](https://github.com/walkerjameschris/dataclass/workflows/R-CMD-check/badge.svg)](https://github.com/walkerjameschris/dataclass/actions?workflow=R-CMD-check)
+![Downloads](https://cranlogs.r-pkg.org/badges/grand-total/dataclass)
 
 ## Easily Create Structured Lists or Data Frames with Input Validation
 
