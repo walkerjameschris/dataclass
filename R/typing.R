@@ -44,8 +44,8 @@
 #' # This will check types but for new arguments
 #' foo(2L, "Hi!", FALSE, 1.2, mtcars)
 #' 
-#' # This fails because types are incorrect!
-#' foo(1.1, FALSE, NULL, "Hi", list())
+#' # This would fail because types are incorrect!
+#' # foo(1.1, FALSE, NULL, "Hi", list())
 #' 
 #' # This function will only warn when there are type failures
 #' bar <- function(x = int(1)) {
@@ -88,7 +88,8 @@ enforce_types <- function(level = c("error", "warn", "none")) {
         return(NULL)
       }
 
-      provided <- tail(class(purrr::chuck(args, name)), 1)
+      provided <- class(purrr::chuck(args, name))
+      provided <- provided[length(provided)]
       specified <- purrr::chuck(type_match, info[1])
         
 

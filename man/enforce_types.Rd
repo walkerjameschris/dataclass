@@ -53,8 +53,8 @@ foo()
 # This will check types but for new arguments
 foo(2L, "Hi!", FALSE, 1.2, mtcars)
 
-# This fails because types are incorrect!
-foo(1.1, FALSE, NULL, "Hi", list())
+# This would fail because types are incorrect!
+# foo(1.1, FALSE, NULL, "Hi", list())
 
 # This function will only warn when there are type failures
 bar <- function(x = int(1)) {
