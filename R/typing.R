@@ -1,7 +1,11 @@
 
+int <- identity
+dbl <- identity
+lgl <- identity
+chr <- identity
+tbl <- identity
+
 #' Enforced typing in R
-#' 
-#' #' @description
 #' `r lifecycle::badge("experimental")`
 #'
 #' This function allows for simple type enforcement in R inspired by C++ and
@@ -17,8 +21,7 @@
 #' You can also provide default arguments within the parenthesis of the type. This
 #' is shown in the example below. You can provide new arguments as well. The function
 #' has knowledge of the function declaration when it runs. Note: types are checked
-#' at runtime so there is nothing stopping you from providing `dbl("A double")` when the
-#' function is declared. However, types are checked when the function *runs*.
+#' at runtime not when the function is declared.
 #' 
 #' @param level Should type failures error, warn, or be skipped (none)?
 #'
@@ -68,13 +71,8 @@ enforce_types <- function(level = c("error", "warn", "none")) {
       dbl = "numeric",
       lgl = "logical",
       chr = "character",
-      tbl = "data.frame",
-      dls = "dataclass"
+      tbl = "data.frame"
     )
-  
-  for (i in names(type_match)) {
-    assign(i, identity, envir = parent.frame())
-  }
 
   args <- as.list(parent.frame())
   types <- as.list(formals(fun))
@@ -82,20 +80,20 @@ enforce_types <- function(level = c("error", "warn", "none")) {
   bad_types <-
     purrr::imap(types, function(x, name) {
 
-      info <- as.character(x)
+      info <- as.character(x)[1]
 
-      if (!info[1] %in% names(type_match)) {
+      if (!info %in% names(type_match)) {
         return(NULL)
       }
 
       provided <- class(purrr::chuck(args, name))
-      provided <- provided[length(provided)]
-      specified <- purrr::chuck(type_match, info[1])
+      specified <- purrr::chuck(type_match, info)
         
-
       if (specified %in% provided) {
         return(NULL)
       }
+
+      provided <- provided[length(provided)]
 
       glue::glue(
         "`[name]`: {.cls {'[provided]'}} should be {.cls {'[specified]'}}",

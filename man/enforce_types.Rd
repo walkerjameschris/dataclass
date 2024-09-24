@@ -2,7 +2,8 @@
 % Please edit documentation in R/typing.R
 \name{enforce_types}
 \alias{enforce_types}
-\title{Enforced typing in R}
+\title{Enforced typing in R
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}}
 \usage{
 enforce_types(level = c("error", "warn", "none"))
 }
@@ -10,13 +11,11 @@ enforce_types(level = c("error", "warn", "none"))
 \item{level}{Should type failures error, warn, or be skipped (none)?}
 }
 \description{
-#' @description
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-}
-\details{
 This function allows for simple type enforcement in R inspired by C++ and
 other compiled languages. There are currently six primitive types which the
 function handles:
+}
+\details{
 \itemize{
 \item \code{int()}: An integer specified with the \emph{L} syntax (i.e., `1L``)
 \item \code{chr()}: A string or character
@@ -28,8 +27,7 @@ function handles:
 You can also provide default arguments within the parenthesis of the type. This
 is shown in the example below. You can provide new arguments as well. The function
 has knowledge of the function declaration when it runs. Note: types are checked
-at runtime so there is nothing stopping you from providing \code{dbl("A double")} when the
-function is declared. However, types are checked when the function \emph{runs}.
+at runtime not when the function is declared.
 }
 \examples{
 foo <- function(
