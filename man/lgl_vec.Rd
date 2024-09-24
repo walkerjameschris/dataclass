@@ -17,10 +17,11 @@ lgl_vec(max_len = Inf, min_len = 1, level = "error", allow_na = FALSE)
 }
 \value{
 A function with the following properties:
-
-* Checks whether something is a logical vector
-* Determines whether the check will throw warning or error
-* Optionally checks for element length
+\itemize{
+\item Checks whether something is a logical vector
+\item Determines whether the check will throw warning or error
+\item Optionally checks for element length
+}
 }
 \description{
 This function is used to check whether something is a logical. You can use

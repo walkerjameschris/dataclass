@@ -15,10 +15,11 @@ df_like(max_row = Inf, min_row = 1, level = "error")
 }
 \value{
 A function with the following properties:
-
-* Checks whether something is a data frame like object
-* Determines whether the check will throw warning or error
-* Optionally checks for row count
+\itemize{
+\item Checks whether something is a data frame like object
+\item Determines whether the check will throw warning or error
+\item Optionally checks for row count
+}
 }
 \description{
 This function is used to check whether something is data like. You can use

@@ -8,9 +8,10 @@ any_obj()
 }
 \value{
 A function with the following properties:
-
-* Always returns TRUE
-* Bypasses any dataclass checks
+\itemize{
+\item Always returns TRUE
+\item Bypasses any dataclass checks
+}
 }
 \description{
 This function is used to bypass dataclass checks for a given element. If you
