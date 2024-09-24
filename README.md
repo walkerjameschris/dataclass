@@ -13,3 +13,9 @@ data. Decide whether violations of these expectations should throw an error or a
 warning. This package is useful for validating data within R processes which
 pull from dynamic data sources such as databases and web APIs to provide an
 extra layer of validation around input and output data.
+
+## Typing in R
+
+The package is also experimenting with typing (i.e., enforcing variables to be a
+specific type). This can be enforced using `dataclass::enforce_types()` in your
+function header. Learn more about this using `?dataclass::enforce_types`.
