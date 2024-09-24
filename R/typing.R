@@ -1,10 +1,3 @@
-
-int <- identity
-dbl <- identity
-lgl <- identity
-chr <- identity
-tbl <- identity
-
 #' Enforced typing in R
 #' `r lifecycle::badge("experimental")`
 #'
@@ -73,6 +66,17 @@ enforce_types <- function(level = c("error", "warn", "none")) {
       chr = "character",
       tbl = "data.frame"
     )
+  
+  if (any(names(type_match) %in% names(parent.frame()))) {
+    cli::cli_warn(c(
+      "!" = "Types may conflict with your function enviornment",
+      "i" = "For example, `int()`"
+    ))
+  }
+
+  for (i in names(type_match)) {
+    assign(i, identity, envir = parent.frame())
+  }
 
   args <- as.list(parent.frame())
   types <- as.list(formals(fun))
