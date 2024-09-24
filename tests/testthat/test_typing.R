@@ -13,6 +13,11 @@ bar <- function(x = int(1.2)) {
   dataclass::enforce_types()
 }
 
+baz <- function(x = int(1L)) {
+  int <- 1
+  dataclass::enforce_types()
+}
+
 testthat::test_that("Test runtime typing", {
 
   # Provide incorrect types but set level to warn
@@ -43,6 +48,10 @@ testthat::test_that("Test runtime typing", {
   # Provide correct type despite default
   testthat::expect_no_error(
     bar(1L)
+  )
+
+  testthat::expect_warning(
+    baz()
   )
 
 })
