@@ -1,7 +1,7 @@
 Package: dataclass
 Type: Package
 Title: Easily Create Structured Lists or Data Frames with Input Validation
-Version: 0.3.0
+Version: 1.0.0
 Authors@R: c(person(
             "Chris", "Walker",
             role = c("aut", "cre", "cph"),
@@ -17,10 +17,19 @@ Description: Easily define templates for lists and data frames that validate
     and output data.
 License: MIT + file LICENSE
 Encoding: UTF-8
-Imports: purrr, rlang, glue, magrittr, tibble, cli, dplyr
-RoxygenNote: 7.2.3
+Imports: 
+    purrr,
+    rlang,
+    glue,
+    magrittr,
+    tibble,
+    cli,
+    dplyr,
+    lifecycle
+RoxygenNote: 7.3.2
 NeedsCompilation: no
 Packaged: 2023-03-12 15:49:07 UTC; cjwal
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)

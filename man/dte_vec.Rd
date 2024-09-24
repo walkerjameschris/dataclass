@@ -25,10 +25,11 @@ dte_vec(
 }
 \value{
 A function with the following properties:
-
-* Checks whether something is a date
-* Determines whether the check will throw warning or error
-* Optionally checks for element length
+\itemize{
+\item Checks whether something is a date
+\item Determines whether the check will throw warning or error
+\item Optionally checks for element length
+}
 }
 \description{
 This function is used to check whether something is a date. You can use this

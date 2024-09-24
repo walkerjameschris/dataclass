@@ -11,11 +11,12 @@ dataclass(...)
 }
 \value{
 A function with the following properties:
-
-* An argument for each element provided to dataclass()
-* Each argument in the returned function will validate inputs
-* An error occurs if new elements passed to the returned function are invalid
-* List is returned if new elements passed to the returned function are valid
+\itemize{
+\item An argument for each element provided to dataclass()
+\item Each argument in the returned function will validate inputs
+\item An error occurs if new elements passed to the returned function are invalid
+\item List is returned if new elements passed to the returned function are valid
+}
 }
 \description{
 Building a dataclass is easy! Provide names for each of the elements you want

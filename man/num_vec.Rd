@@ -34,12 +34,13 @@ num_vec(
 }
 \value{
 A function with the following properties:
-
-* Checks whether something is a number vector
-* Determines whether the check will throw warning or error
-* Optionally checks for element length
-* Optionally checks for allowable values
-* Optionally checks for max/min
+\itemize{
+\item Checks whether something is a number vector
+\item Determines whether the check will throw warning or error
+\item Optionally checks for element length
+\item Optionally checks for allowable values
+\item Optionally checks for max/min
+}
 }
 \description{
 This function is used to check whether something is a number. You can use

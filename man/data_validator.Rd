@@ -13,12 +13,13 @@ data_validator(x, strict_cols = TRUE)
 }
 \value{
 A function with the following properties:
-
-* A modified dataclass function designed to accept data frames
-* A single argument to test new data frames
-* Each column in a new data frame will be tested
-* An error occurs if new data passed to the returned function are invalid
-* Data is returned if new data passed to the returned function are valid
+\itemize{
+\item A modified dataclass function designed to accept data frames
+\item A single argument to test new data frames
+\item Each column in a new data frame will be tested
+\item An error occurs if new data passed to the returned function are invalid
+\item Data is returned if new data passed to the returned function are valid
+}
 }
 \description{
 If you intend to use your dataclass to validate data frame like object such

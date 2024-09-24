@@ -28,11 +28,12 @@ chr_vec(
 }
 \value{
 A function with the following properties:
-
-* Checks whether something is a character vector
-* Determines whether the check will throw warning or error
-* Optionally checks for element length
-* Optionally checks for allowable values
+\itemize{
+\item Checks whether something is a character vector
+\item Determines whether the check will throw warning or error
+\item Optionally checks for element length
+\item Optionally checks for allowable values
+}
 }
 \description{
 This function is used to check whether something is a character. You can use
