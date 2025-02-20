@@ -1,8 +1,8 @@
 # dataclass <img src='https://chrisjameswalker.com/wp-content/uploads/2023/03/logo.png' align="right" height="140" />
 
-[![CRAN status](https://www.r-pkg.org/badges/version/dataclass)](https://cran.r-project.org/package=dataclass)
-[![R build status](https://github.com/walkerjameschris/dataclass/workflows/R-CMD-check/badge.svg)](https://github.com/walkerjameschris/dataclass/actions?workflow=R-CMD-check)
-![Downloads](https://cranlogs.r-pkg.org/badges/grand-total/dataclass)
+> [!IMPORTANT]
+> `dataclass` was archived on CRAN. There are better, well supported,
+> alternatives for input validation like [`pointblank`](https://github.com/rstudio/pointblank).
 
 ## Easily Create Structured Lists or Data Frames with Input Validation
 
@@ -13,9 +13,3 @@ data. Decide whether violations of these expectations should throw an error or a
 warning. This package is useful for validating data within R processes which
 pull from dynamic data sources such as databases and web APIs to provide an
 extra layer of validation around input and output data.
-
-## Typing in R
-
-The package is also experimenting with typing (i.e., enforcing variables to be a
-specific type). This can be enforced using `dataclass::enforce_types()` in your
-function header. Learn more about this using `?dataclass::enforce_types`.
